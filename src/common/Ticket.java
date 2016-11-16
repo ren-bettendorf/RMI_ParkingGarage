@@ -20,7 +20,7 @@ public class Ticket implements Serializable {
 		// Trim off all non numeric characters
 		uniqueID = checkinTime.toString().replaceAll("[^0-9]", "");
 		// Trim off the milliseconds
-		uniqueID = uniqueID.substring(0, uniqueID.length()-3);
+		uniqueID = uniqueID.substring(0, uniqueID.length()-2);
 	}
 	
 	public LocalDateTime getCheckinTime()
@@ -49,7 +49,7 @@ public class Ticket implements Serializable {
 		if(!(obj == null) && obj instanceof Ticket) 
 		{
 			Ticket tic = (Ticket)obj;
-			return this.checkinTime.equals(tic.getCheckinTime());
+			return this.getUniqueID().equals(tic.getUniqueID());
 		}
 		return false;
 	}

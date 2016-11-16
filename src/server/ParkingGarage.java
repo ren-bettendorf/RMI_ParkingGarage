@@ -71,11 +71,7 @@ public class ParkingGarage extends java.rmi.server.UnicastRemoteObject implement
 	 */
 	public String runOccupationReports(LocalDateTime begin, LocalDateTime end)
 	{
-		LocalDateTime beginLDT = LocalDateTime.of(begin.getYear(), begin.getMonth(), begin.getDayOfMonth(), 0, 0);
-
-		LocalDateTime endLDT = LocalDateTime.of(end.getYear(), end.getMonth(), end.getDayOfMonth(), 0, 0);
-		return recordManager.getOccupationRecords(beginLDT, endLDT);
-
+		return recordManager.getOccupationRecords(begin, end);
 	}
 	
 	/**
