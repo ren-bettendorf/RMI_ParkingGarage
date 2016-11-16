@@ -1,4 +1,4 @@
-package common;
+package server;
 
 import java.io.Serializable;
 import java.rmi.RemoteException;
@@ -6,8 +6,16 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class RecordManager extends java.rmi.server.UnicastRemoteObject implements Serializable
+import common.CarStatus;
+import common.Payment;
+import common.Ticket;
+
+public class RecordManager extends java.rmi.server.UnicastRemoteObject implements Serializable, IRecordManager
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 9092826944053480194L;
 	private ArrayList<FinancialRecord> financialRecords = new ArrayList<FinancialRecord>();
 	private ArrayList<OccupationRecord> occupationRecords = new ArrayList<OccupationRecord>();
 

@@ -5,7 +5,9 @@ import java.rmi.RemoteException;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 
-import common.RecordManager;
+import common.CarStatus;
+import common.EntryGate;
+import common.ExitGate;
 import common.Ticket;
 
 public class ParkingGarage extends java.rmi.server.UnicastRemoteObject implements IParkingGarage, Serializable
@@ -16,16 +18,16 @@ public class ParkingGarage extends java.rmi.server.UnicastRemoteObject implement
 	private static final long serialVersionUID = 1L;
 	private HashSet<Ticket> ticketsInGarage = new HashSet<Ticket>();
 	private RecordManager recordManager = new RecordManager();
-	//private EntryGate entryGate;
-	//private ExitGate exitGate;
+	private EntryGate entryGate;
+	private ExitGate exitGate;
 	private int maxOccupancy;
 
 	public ParkingGarage(int maxOccu) throws RemoteException
 	{
 		super();
 		this.maxOccupancy = maxOccu;
-		//this.entryGate = new EntryGate("Entrance Gate", this);
-		//this.exitGate = new ExitGate("Exit Gate", this);
+		this.entryGate = new EntryGate("Entrance Gate", this);
+		this.exitGate = new ExitGate("Exit Gate", this);
 	}
 
 	public boolean checkGarageSpace() throws RemoteException
@@ -37,9 +39,22 @@ public class ParkingGarage extends java.rmi.server.UnicastRemoteObject implement
 		return false;
 	}
 
-	public void addCarToGarage(Ticket ticket) throws RemoteException
+	public Ticket addCarToGarage() throws RemoteException
 	{
-		ticketsInGarage.add(ticket);
+		Ticket t = null;
+		try {
+			if( !checkGarageSpace() )
+			{
+				t = new Ticket(LocalDateTime.now());
+				ticketsInGarage.add(t);
+
+				recordManager.addOccupationRecord(t.getCheckinTime(), CarStatus.ENTER);
+			}
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return t;
 	}
 	
 	public void removeCarFromGarage(Ticket ticket) throws RemoteException
@@ -88,15 +103,15 @@ public class ParkingGarage extends java.rmi.server.UnicastRemoteObject implement
 		return maxOccupancy;
 	}
 	
-//	public EntryGate getEntranceGate()
-//	{
-//		return entryGate;
-//	}
-//	
-//	public ExitGate getExitGate()
-//	{
-//		return exitGate;
-//	}
+	public EntryGate getEntryGate()
+	{
+		return entryGate;
+	}
+	
+	public ExitGate getExitGate()
+	{
+		return exitGate;
+	}
 	
 	public int getCarOccupancy()
 	{

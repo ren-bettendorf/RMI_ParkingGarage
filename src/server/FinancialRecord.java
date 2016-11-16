@@ -1,6 +1,9 @@
-package common;
+package server;
 
 import java.time.LocalDateTime;
+
+import common.Payment;
+import common.Ticket;
 
 public class FinancialRecord 
 {

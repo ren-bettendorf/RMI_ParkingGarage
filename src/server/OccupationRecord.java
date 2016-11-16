@@ -1,6 +1,8 @@
-package common;
+package server;
 
 import java.time.LocalDateTime;
+
+import common.CarStatus;
 
 public class OccupationRecord 
 {
