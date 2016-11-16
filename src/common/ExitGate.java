@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 
+import server.IParkingGarage;
 import server.ParkingGarage;
 import server.RecordManager;
 
@@ -16,9 +17,9 @@ public class ExitGate extends java.rmi.server.UnicastRemoteObject implements Ser
 	 */
 	private static final long serialVersionUID = -338522956722107854L;
 	private String gateName;
-	private ParkingGarage garage;
+	private IParkingGarage garage;
 
-	public ExitGate(String name, ParkingGarage garage) throws RemoteException
+	public ExitGate(String name, IParkingGarage garage) throws RemoteException
 	{
 		this.gateName = name;
 		this.garage = garage;
@@ -68,7 +69,12 @@ public class ExitGate extends java.rmi.server.UnicastRemoteObject implements Ser
 	 */
 	private Ticket findTicket(String ticketID)
 	{
-		HashSet<Ticket> tickets = garage.getTickets();
+		HashSet<Ticket> tickets = null;
+		try {
+			tickets = garage.getTickets();
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
 		Ticket t = null;
 		for(Ticket ticket : tickets)
 		{
@@ -89,14 +95,19 @@ public class ExitGate extends java.rmi.server.UnicastRemoteObject implements Ser
 	 */
 	public void removeCarFromGarage(String ticketID, Payment payment)
 	{
-		RecordManager records = garage.getRecordManager();
+		RecordManager records = null;
+		try {
+			records = garage.getRecordManager();
+		} catch (RemoteException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		Ticket t = findTicket(ticketID);		
 		records.addOccupationRecord(payment.getDateOfPayment(), CarStatus.LEAVE);
 		records.addFinancialRecord(t, payment);
 		try {
 			garage.removeCarFromGarage(t);
 		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

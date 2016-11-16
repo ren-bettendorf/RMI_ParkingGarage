@@ -12,10 +12,12 @@ public class ParkingGarageController {
 	
 	Ticket lastTicket;
 	IParkingGarage garage;
-	public ParkingGarageController(String url)
+	EntryGate entryGate;
+	ExitGate exitGate;
+	public ParkingGarageController(String url, String entryGateName, String exitGateName)
 	{
 		try {
-			garage = (IParkingGarage) Naming.lookup(url);
+			this.garage = (IParkingGarage) Naming.lookup(url);
 			
 		} catch (RemoteException re) {
 			System.out.println("RemoteException");
@@ -33,6 +35,14 @@ public class ParkingGarageController {
 			System.out.println(nbe);
 			System.exit(-1);
 
+		}
+		
+		try {
+			this.entryGate = new EntryGate(entryGateName, garage);
+		
+			this.exitGate = new ExitGate(exitGateName, garage);
+		} catch (RemoteException e) {
+			e.printStackTrace();
 		}
 	}
 	

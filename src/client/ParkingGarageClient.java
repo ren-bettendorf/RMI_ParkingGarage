@@ -3,14 +3,13 @@ package client;
 import java.util.Scanner;
 
 import common.ParkingGarageController;
-import common.Ticket;
 
 public class ParkingGarageClient {
 	static Scanner input = new Scanner(System.in);
 	static ParkingGarageController controller;
 	
 	public static void main(String[] args) {
-		controller = new ParkingGarageController("rmi://" + args[0] + ":" + args[1] + "/ParkingGarageServer");
+		controller = new ParkingGarageController("rmi://" + args[0] + ":" + args[1] + "/ParkingGarageServer", args[2], args[3]);
 	
 		if(controller.addCarToGarage())
 		{
