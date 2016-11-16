@@ -6,8 +6,6 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 
 import common.CarStatus;
-import common.EntryGate;
-import common.ExitGate;
 import common.Ticket;
 
 public class ParkingGarage extends java.rmi.server.UnicastRemoteObject implements IParkingGarage, Serializable
@@ -18,16 +16,12 @@ public class ParkingGarage extends java.rmi.server.UnicastRemoteObject implement
 	private static final long serialVersionUID = 1L;
 	private HashSet<Ticket> ticketsInGarage = new HashSet<Ticket>();
 	private RecordManager recordManager = new RecordManager();
-	private EntryGate entryGate;
-	private ExitGate exitGate;
 	private int maxOccupancy;
 
 	public ParkingGarage(int maxOccu) throws RemoteException
 	{
 		super();
 		this.maxOccupancy = maxOccu;
-		this.entryGate = new EntryGate("Entrance Gate", this);
-		this.exitGate = new ExitGate("Exit Gate", this);
 	}
 
 	public boolean checkGarageSpace() throws RemoteException
@@ -97,16 +91,6 @@ public class ParkingGarage extends java.rmi.server.UnicastRemoteObject implement
 	public int getMaxCarOccupancy()
 	{
 		return maxOccupancy;
-	}
-	
-	public EntryGate getEntryGate()
-	{
-		return entryGate;
-	}
-	
-	public ExitGate getExitGate()
-	{
-		return exitGate;
 	}
 	
 	public int getCarOccupancy()

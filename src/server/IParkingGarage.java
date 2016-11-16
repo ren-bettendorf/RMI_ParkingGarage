@@ -4,8 +4,6 @@ import java.rmi.RemoteException;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 
-import common.EntryGate;
-import common.ExitGate;
 import common.Ticket;
 
 public interface IParkingGarage extends java.rmi.Remote {
@@ -33,6 +31,4 @@ public interface IParkingGarage extends java.rmi.Remote {
 	public int getCarOccupancy() throws RemoteException;
 	public int getMaxCarOccupancy() throws RemoteException;
 	public RecordManager getRecordManager() throws RemoteException;
-	public EntryGate getEntryGate() throws RemoteException;
-	public ExitGate getExitGate() throws RemoteException;
 }

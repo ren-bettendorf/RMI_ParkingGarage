@@ -9,7 +9,7 @@ public class ParkingGarageClient {
 	static ParkingGarageController controller;
 	
 	public static void main(String[] args) {
-		controller = new ParkingGarageController("rmi://" + args[0] + ":" + args[1] + "/ParkingGarageServer", args[2], args[3]);
+		controller = new ParkingGarageController("rmi://" + args[0] + ":" + args[1] + "/ParkingGarageServer");
 	
 		if(controller.addCarToGarage())
 		{
