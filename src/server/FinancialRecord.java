@@ -1,13 +1,12 @@
 package server;
 
-import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.time.LocalDateTime;
 
 import common.IPayment;
 import common.Ticket;
 
-public class FinancialRecord extends java.rmi.server.UnicastRemoteObject implements Serializable
+public class FinancialRecord 
 {
 	/**
 	 * 

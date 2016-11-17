@@ -10,7 +10,7 @@ import common.CarStatus;
 import common.IPayment;
 import common.Ticket;
 
-public class RecordManager extends java.rmi.server.UnicastRemoteObject implements Serializable, IRecordManager
+public class RecordManager implements Serializable, IRecordManager
 {
 	/**
 	 * 

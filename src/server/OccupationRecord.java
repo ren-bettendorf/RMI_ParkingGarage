@@ -5,12 +5,8 @@ import java.time.LocalDateTime;
 
 import common.CarStatus;
 
-public class OccupationRecord extends java.rmi.server.UnicastRemoteObject
+public class OccupationRecord
 {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 5970225710951074046L;
 	private LocalDateTime time;
 	private CarStatus status;
 	

@@ -7,7 +7,7 @@ import common.CarStatus;
 import common.IPayment;
 import common.Ticket;
 
-public interface IRecordManager extends java.rmi.Remote {
+public interface IRecordManager {
 	
 	public int getOccupationRecordsSize() throws RemoteException;
 	

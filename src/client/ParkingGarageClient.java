@@ -23,16 +23,16 @@ public class ParkingGarageClient {
 			System.out.println("FULL GARAGE");
 		}
 		
-		try {
-			System.out.println("Car Exited: " + controller.removeCarFromGarage(controller.getLastTicket().getUniqueID(), new CashPayment(10.00, LocalDateTime.now())));
-		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		try {
+//			//System.out.println("Car Exited: " + controller.removeCarFromGarage(controller.getLastTicket().getUniqueID(), new CashPayment(10.00, LocalDateTime.now())));
+//		} catch (RemoteException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		System.out.println("Garage Status: " + controller.getGarageOccupancyStatus());
 
 
 		System.out.println("\n\nReports:\n" + controller.runOccuReports(LocalDateTime.of(2016, 9, 1, 0, 0), LocalDateTime.of(2017, 9, 1, 0, 0)));
-		System.out.println("End of Reports");
+		//System.out.println("End of Reports");
 	}
 }
