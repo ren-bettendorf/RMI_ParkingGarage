@@ -2,8 +2,12 @@ package server;
 
 import java.io.Serializable;
 import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+
+import common.CarStatus;
+import common.IPayment;
 import common.Ticket;
 
 public class ParkingGarage extends java.rmi.server.UnicastRemoteObject implements IParkingGarage, Serializable
@@ -18,6 +22,7 @@ public class ParkingGarage extends java.rmi.server.UnicastRemoteObject implement
 
 	public ParkingGarage(int maxOccu) throws RemoteException
 	{
+		super();
 		recordManager = new RecordManager();
 		this.maxOccupancy = maxOccu;
 	}
@@ -53,6 +58,17 @@ public class ParkingGarage extends java.rmi.server.UnicastRemoteObject implement
 		ticketsInGarage.remove(ticket);	
 	}
 	
+	public void addEntryRecords(Ticket ticket) throws RemoteException
+	{
+		recordManager.addOccupationRecord(ticket.getCheckinTime(), CarStatus.ENTER);
+	}
+	
+	public void addExitRecords(Ticket ticket, IPayment payment) throws RemoteException
+	{
+		recordManager.addFinancialRecord(ticket, payment);
+		recordManager.addOccupationRecord(payment.getDateOfPayment(), CarStatus.LEAVE);
+	}
+	
 	public String runReports(LocalDateTime begin, LocalDateTime end) throws RemoteException
 	{
 		StringBuilder sb = new StringBuilder();
@@ -83,8 +99,6 @@ public class ParkingGarage extends java.rmi.server.UnicastRemoteObject implement
 	 */
 	public String runFinancialReports(LocalDateTime begin, LocalDateTime end) throws RemoteException
 	{
-
-		System.out.println("Returned Parking Garage Reports");
 		return recordManager.getFinancialRecords(begin, end);
 	}
 	

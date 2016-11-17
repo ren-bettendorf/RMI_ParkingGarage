@@ -39,10 +39,9 @@ public class ParkingGarageController {
 
 	public boolean addCarToGarage() {
 		try {
-			IRecordManager recordManager = garage.getRecordManager();
 			setLastTicket(garage.addCarToGarage());
 
-			recordManager.addOccupationRecord(getLastTicket().getCheckinTime(), CarStatus.ENTER);
+			garage.addEntryRecords(getLastTicket());
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -68,17 +67,13 @@ public class ParkingGarageController {
 		boolean retStatus = true;
 		IRecordManager records = null;
 
-		Ticket t = findTicket(ticketID);
+		Ticket ticket = findTicket(ticketID);
 
-		if (t != null) {
+		if (ticket != null) {
 			try {
-				System.out.println("Found ticket: " + t.getUniqueID());
-				records = (IRecordManager) garage.getRecordManager();
-				records.addOccupationRecord(payment.getDateOfPayment(), CarStatus.LEAVE);
-
-				records.addFinancialRecord(t, payment);
-
-				garage.removeCarFromGarage(t);
+				garage.addExitRecords(ticket, payment);
+				
+				garage.removeCarFromGarage(ticket);
 			} catch (RemoteException e) {
 				e.printStackTrace();
 			}

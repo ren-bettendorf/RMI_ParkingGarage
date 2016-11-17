@@ -10,8 +10,7 @@ import common.CarStatus;
 import common.IPayment;
 import common.Ticket;
 
-public class RecordManager implements Serializable, IRecordManager
-{
+public class RecordManager implements Serializable, IRecordManager {
 	/**
 	 * 
 	 */
@@ -19,82 +18,72 @@ public class RecordManager implements Serializable, IRecordManager
 	private ArrayList<FinancialRecord> financialRecords = new ArrayList<FinancialRecord>();
 	private ArrayList<OccupationRecord> occupationRecords = new ArrayList<OccupationRecord>();
 
-	public RecordManager() throws RemoteException
-	{
+	public RecordManager() throws RemoteException {
+		super();
 	}
-	
-	public int getOccupationRecordsSize() throws RemoteException
-	{
+
+	public int getOccupationRecordsSize() throws RemoteException {
 		return occupationRecords.size();
 	}
-	
-	public int getFinancialRecordsSize() throws RemoteException
-	{
+
+	public int getFinancialRecordsSize() throws RemoteException {
 		return financialRecords.size();
 	}
-	
+
 	/**
 	 * Add Occupation Report to RecordManager
-	 * @param ldt time to add to report
-	 * @param status whether car was entering or leaving
+	 * 
+	 * @param ldt
+	 *            time to add to report
+	 * @param status
+	 *            whether car was entering or leaving
 	 */
-	public void addOccupationRecord(LocalDateTime ldt, CarStatus status) throws RemoteException
-	{
+	public void addOccupationRecord(LocalDateTime ldt, CarStatus status) throws RemoteException {
 		OccupationRecord record = new OccupationRecord(ldt, status);
 		occupationRecords.add(record);
 	}
-	
+
 	/**
 	 * Queries OccupationRecords over a time frame
-	 * @param begin starting time frame
-	 * @param end ending time frame
+	 * 
+	 * @param begin
+	 *            starting time frame
+	 * @param end
+	 *            ending time frame
 	 * @return Occupation Record
 	 */
-	public String getOccupationRecords(LocalDateTime begin, LocalDateTime end) throws RemoteException
-	{
+	public String getOccupationRecords(LocalDateTime begin, LocalDateTime end) throws RemoteException {
 		String returnedTotals = "";
 		HashMap<LocalDateTime, Integer> carsVisited = new HashMap<LocalDateTime, Integer>();
 		HashMap<LocalDateTime, Integer> carsLeft = new HashMap<LocalDateTime, Integer>();
-		
+
 		// Check to make sure that records exist
-		if(occupationRecords.size() > 0)
-		{
+		if (occupationRecords.size() > 0) {
 
 			int numVisited = 0;
 			int numLeft = 0;
-			
+
 			// Check to all records to see if they fall in time frame
-			for(OccupationRecord record : occupationRecords)
-			{
+			for (OccupationRecord record : occupationRecords) {
 				// Check to see if record is not in query time frame
 				LocalDateTime ldt = record.getTime();
-				if(ldt.isBefore(begin) || ldt.isAfter(end))
-				{
+				if (ldt.isBefore(begin) || ldt.isAfter(end)) {
 					continue;
 				}
-				
+
 				CarStatus status = record.getCarStatus();
-				if( status == CarStatus.ENTER)
-				{
-					if( carsVisited.containsKey(ldt) )
-					{
+				if (status == CarStatus.ENTER) {
+					if (carsVisited.containsKey(ldt)) {
 						numVisited = carsVisited.get(ldt) + 1;
-					}
-					else
-					{
+					} else {
 						numVisited = 1;
 					}
 
 					carsVisited.put(ldt, numVisited);
-				}
-				else
-				{
-					if( carsLeft.containsKey(ldt) )
-					{
+				} else {
+					if (carsLeft.containsKey(ldt)) {
 						numLeft = carsLeft.get(ldt) + 1;
-					}
-					else
-					{
+					} else {
 						numLeft = 1;
 					}
 
@@ -102,63 +91,60 @@ public class RecordManager implements Serializable, IRecordManager
 				}
 			}
 		}
-		
+
 		// Change HashMaps to String
 		returnedTotals = changeOccupationToLines(carsVisited, carsLeft);
 		return returnedTotals;
 	}
-	
+
 	/**
 	 * Add Financial Report to RecordManager
-	 * @param ticket Ticket paid for
-	 * @param payment Payment used to pay for ticket
+	 * 
+	 * @param ticket
+	 *            Ticket paid for
+	 * @param payment
+	 *            Payment used to pay for ticket
 	 */
-	public void addFinancialRecord(Ticket ticket, IPayment payment) throws RemoteException
-	{
+	public void addFinancialRecord(Ticket ticket, IPayment payment) throws RemoteException {
 		FinancialRecord record = new FinancialRecord(ticket, payment);
 		financialRecords.add(record);
 	}
 
 	/**
 	 * Queries Financial Records over a time frame
+	 * 
 	 * @param begin
 	 * @param end
 	 * @return
 	 */
-	public String getFinancialRecords(LocalDateTime begin, LocalDateTime end) throws RemoteException
-	{
+	public String getFinancialRecords(LocalDateTime begin, LocalDateTime end) throws RemoteException {
 		String returnedTotals;
 		HashMap<LocalDateTime, Double> dailyTotals = new HashMap<LocalDateTime, Double>();
-		
+
 		// Check to make sure that records exist
-		if(financialRecords.size() > 0)
-		{
-			for(FinancialRecord record : financialRecords)
-			{
+		if (financialRecords.size() > 0) {
+			for (FinancialRecord record : financialRecords) {
 				// Check to see if record is not in query time frame
 				LocalDateTime recordDate = record.getRecordDate();
-				
-				if(recordDate.isBefore(begin) || recordDate.isAfter(end))
+				if(recordDate == null)
 				{
 					continue;
 				}
+				if (recordDate.isBefore(begin) || recordDate.isAfter(end)) {
+					continue;
+				}
 				double recordPayment = 0;
-				try
-				{
-				 recordPayment = record.getPayment().getAmountPaid();
-				} catch(RemoteException re)
-				{
+				try {
+					recordPayment = record.getPayment().getAmountPaid();
+				} catch (RemoteException re) {
 					System.out.println("Trouble: " + re);
 				}
-				System.out.println("Amount Paid: " +recordPayment);
-				// Check to see if we have a record of this day already and adds to otherwise creates a new entry
-				if(dailyTotals.containsKey(recordDate))
-				{
+				// Check to see if we have a record of this day already and adds
+				// to otherwise creates a new entry
+				if (dailyTotals.containsKey(recordDate)) {
 					double runningTotals = dailyTotals.get(recordDate) + recordPayment;
 					dailyTotals.replace(recordDate, runningTotals);
-				}
-				else
-				{
+				} else {
 					dailyTotals.put(recordDate, recordPayment);
 				}
 			}
@@ -166,26 +152,24 @@ public class RecordManager implements Serializable, IRecordManager
 
 		// Change HashMaps to String
 		returnedTotals = changeFinancialToLines(dailyTotals);
-		System.out.println("Returned Financial Reports");
 		return returnedTotals;
 	}
-	
+
 	/**
 	 * Converts HashMaps to Strings for display
+	 * 
 	 * @param entered
 	 * @param left
 	 * @return
 	 */
-	private String changeOccupationToLines(HashMap<LocalDateTime, Integer> entered, HashMap<LocalDateTime, Integer> left) throws RemoteException
-	{
+	private String changeOccupationToLines(HashMap<LocalDateTime, Integer> entered,
+			HashMap<LocalDateTime, Integer> left) throws RemoteException {
 		String ret = "Cars Entered Garage: \nTimestamp\t\tTotal Entered Garage\n";
-		for(LocalDateTime day : entered.keySet())
-		{
+		for (LocalDateTime day : entered.keySet()) {
 			ret += day + ", \t" + entered.get(day) + "\n";
 		}
 		ret += "Cars Left Garage: \nTimestamp\t\tTotal Left Garage\n";
-		for(LocalDateTime day : left.keySet())
-		{
+		for (LocalDateTime day : left.keySet()) {
 			ret += day + ", \t" + left.get(day) + "\n";
 		}
 		ret += "\n\n";
@@ -194,14 +178,13 @@ public class RecordManager implements Serializable, IRecordManager
 
 	/**
 	 * Converts HashMaps to Strings for display
+	 * 
 	 * @param dailyTotals
 	 * @return
 	 */
-	private String changeFinancialToLines(HashMap<LocalDateTime, Double> dailyTotals)  throws RemoteException
-	{
+	private String changeFinancialToLines(HashMap<LocalDateTime, Double> dailyTotals) throws RemoteException {
 		String ret = "Financial Records: \n\nDay\tTotal Made\n";
-		for(LocalDateTime day : dailyTotals.keySet())
-		{
+		for (LocalDateTime day : dailyTotals.keySet()) {
 			ret += day + ", \t" + dailyTotals.get(day) + "\n";
 		}
 		return ret;

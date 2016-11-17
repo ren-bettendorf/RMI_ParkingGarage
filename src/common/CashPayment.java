@@ -16,6 +16,7 @@ public class CashPayment extends java.rmi.server.UnicastRemoteObject implements 
 	
 	public CashPayment(double amountPaid, LocalDateTime dateOfPayment) throws RemoteException
 	{
+		super();
 		// Disallow a negative payment
 		if(amountPaid <= 0)
 		{

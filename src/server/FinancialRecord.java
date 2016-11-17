@@ -1,12 +1,13 @@
 package server;
 
+import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.time.LocalDateTime;
 
 import common.IPayment;
 import common.Ticket;
 
-public class FinancialRecord 
+public class FinancialRecord implements Serializable
 {
 	/**
 	 * 
@@ -43,8 +44,7 @@ public class FinancialRecord
 		try {
 			paymentDate = payment.getDateOfPayment();
 		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("Returning null Record Date");
 		}
 		return paymentDate;
 	}

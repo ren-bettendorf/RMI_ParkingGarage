@@ -12,7 +12,7 @@ public class ParkingGarageClient {
 	static ParkingGarageController controller;
 	
 	public static void main(String[] args) {
-		controller = new ParkingGarageController("rmi://" + args[0] + ":" + args[1] + "/ParkingGarageServer");
+		controller = new ParkingGarageController("rmi://192.168.0.13:2500/ParkingGarageServer");
 		
 		if(controller.addCarToGarage())
 		{
@@ -24,7 +24,8 @@ public class ParkingGarageClient {
 		}
 		
 //		try {
-//			//System.out.println("Car Exited: " + controller.removeCarFromGarage(controller.getLastTicket().getUniqueID(), new CashPayment(10.00, LocalDateTime.now())));
+//			LocalDateTime today = LocalDateTime.of(LocalDateTime.now().getYear(), LocalDateTime.now().getMonthValue(), LocalDateTime.now().getDayOfMonth(), LocalDateTime.now().getHour(), 0);
+//			System.out.println("Car Exited: " + controller.removeCarFromGarage(controller.getLastTicket().getUniqueID(), new CashPayment(10.00, today)));
 //		} catch (RemoteException e) {
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();
@@ -32,7 +33,7 @@ public class ParkingGarageClient {
 		System.out.println("Garage Status: " + controller.getGarageOccupancyStatus());
 
 
-		System.out.println("\n\nReports:\n" + controller.runOccuReports(LocalDateTime.of(2016, 9, 1, 0, 0), LocalDateTime.of(2017, 9, 1, 0, 0)));
-		//System.out.println("End of Reports");
+		System.out.println("\n\nReports:\n" + controller.runReports(LocalDateTime.of(2016, 9, 1, 0, 0), LocalDateTime.of(2017, 9, 1, 0, 0)));
+		System.out.println("End of Reports");
 	}
 }

@@ -3,6 +3,8 @@ package server;
 import java.rmi.RemoteException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+
+import common.IPayment;
 import common.Ticket;
 
 public interface IParkingGarage extends java.rmi.Remote {
@@ -30,4 +32,6 @@ public interface IParkingGarage extends java.rmi.Remote {
 	public int getCarOccupancy() throws RemoteException;
 	public int getMaxCarOccupancy() throws RemoteException;
 	public IRecordManager getRecordManager() throws RemoteException;
+	public void addExitRecords(Ticket ticket, IPayment payment) throws RemoteException;
+	public void addEntryRecords(Ticket ticket) throws RemoteException;
 }
