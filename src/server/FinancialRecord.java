@@ -1,16 +1,29 @@
 package server;
 
+import java.io.Serializable;
+import java.rmi.RemoteException;
 import java.time.LocalDateTime;
 
-import common.Payment;
+import common.IPayment;
 import common.Ticket;
 
-public class FinancialRecord 
+public class FinancialRecord extends java.rmi.server.UnicastRemoteObject implements Serializable
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2422293596902632133L;
 	private Ticket ticket;
-	private Payment payment;
-	public FinancialRecord(Ticket ticket, Payment payment)
+	private IPayment payment;
+	public FinancialRecord(Ticket ticket, IPayment payment) throws RemoteException
 	{
+		if(payment == null)
+		{
+			throw new IllegalArgumentException("Payment is null");
+		}else if ( ticket == null)
+		{
+			throw new IllegalArgumentException("Ticket is null");
+		}
 		this.ticket = ticket;
 		this.payment = payment;
 	}
@@ -20,14 +33,21 @@ public class FinancialRecord
 		return ticket;
 	}
 	
-	public Payment getPayment()
+	public IPayment getPayment()
 	{
 		return payment;
 	}
 	
 	public LocalDateTime getRecordDate()
 	{
-		return payment.getDateOfPayment();
+		LocalDateTime paymentDate = null;
+		try {
+			paymentDate = payment.getDateOfPayment();
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return paymentDate;
 	}
 
 	@Override

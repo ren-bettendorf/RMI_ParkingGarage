@@ -8,7 +8,7 @@ public class Ticket implements Serializable {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 4580375843474140985L;
 	private LocalDateTime checkinTime;
 	private String uniqueID;
 	private boolean paymentStatus = false;
@@ -49,7 +49,7 @@ public class Ticket implements Serializable {
 		if(!(obj == null) && obj instanceof Ticket) 
 		{
 			Ticket tic = (Ticket)obj;
-			return this.getUniqueID().equals(tic.getUniqueID());
+			return this.checkinTime.equals(tic.getCheckinTime());
 		}
 		return false;
 	}

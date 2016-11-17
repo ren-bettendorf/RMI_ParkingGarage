@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import common.CarStatus;
-import common.Payment;
+import common.IPayment;
 import common.Ticket;
 
 public class RecordManager extends java.rmi.server.UnicastRemoteObject implements Serializable, IRecordManager
@@ -23,12 +23,12 @@ public class RecordManager extends java.rmi.server.UnicastRemoteObject implement
 	{
 	}
 	
-	public int getOccupationRecordsSize()
+	public int getOccupationRecordsSize() throws RemoteException
 	{
 		return occupationRecords.size();
 	}
 	
-	public int getFinancialRecordsSize()
+	public int getFinancialRecordsSize() throws RemoteException
 	{
 		return financialRecords.size();
 	}
@@ -38,7 +38,7 @@ public class RecordManager extends java.rmi.server.UnicastRemoteObject implement
 	 * @param ldt time to add to report
 	 * @param status whether car was entering or leaving
 	 */
-	public void addOccupationRecord(LocalDateTime ldt, CarStatus status)
+	public void addOccupationRecord(LocalDateTime ldt, CarStatus status) throws RemoteException
 	{
 		OccupationRecord record = new OccupationRecord(ldt, status);
 		occupationRecords.add(record);
@@ -50,7 +50,7 @@ public class RecordManager extends java.rmi.server.UnicastRemoteObject implement
 	 * @param end ending time frame
 	 * @return Occupation Record
 	 */
-	public String getOccupationRecords(LocalDateTime begin, LocalDateTime end)
+	public String getOccupationRecords(LocalDateTime begin, LocalDateTime end) throws RemoteException
 	{
 		String returnedTotals = "";
 		HashMap<LocalDateTime, Integer> carsVisited = new HashMap<LocalDateTime, Integer>();
@@ -113,7 +113,7 @@ public class RecordManager extends java.rmi.server.UnicastRemoteObject implement
 	 * @param ticket Ticket paid for
 	 * @param payment Payment used to pay for ticket
 	 */
-	public void addFinancialRecord(Ticket ticket, Payment payment)
+	public void addFinancialRecord(Ticket ticket, IPayment payment) throws RemoteException
 	{
 		FinancialRecord record = new FinancialRecord(ticket, payment);
 		financialRecords.add(record);
@@ -125,7 +125,7 @@ public class RecordManager extends java.rmi.server.UnicastRemoteObject implement
 	 * @param end
 	 * @return
 	 */
-	public String getFinancialRecords(LocalDateTime begin, LocalDateTime end)
+	public String getFinancialRecords(LocalDateTime begin, LocalDateTime end) throws RemoteException
 	{
 		String returnedTotals;
 		HashMap<LocalDateTime, Double> dailyTotals = new HashMap<LocalDateTime, Double>();
@@ -137,12 +137,20 @@ public class RecordManager extends java.rmi.server.UnicastRemoteObject implement
 			{
 				// Check to see if record is not in query time frame
 				LocalDateTime recordDate = record.getRecordDate();
+				
 				if(recordDate.isBefore(begin) || recordDate.isAfter(end))
 				{
 					continue;
 				}
-				double recordPayment = record.getPayment().getAmountPaid();
-				
+				double recordPayment = 0;
+				try
+				{
+				 recordPayment = record.getPayment().getAmountPaid();
+				} catch(RemoteException re)
+				{
+					System.out.println("Trouble: " + re);
+				}
+				System.out.println("Amount Paid: " +recordPayment);
 				// Check to see if we have a record of this day already and adds to otherwise creates a new entry
 				if(dailyTotals.containsKey(recordDate))
 				{
@@ -158,7 +166,7 @@ public class RecordManager extends java.rmi.server.UnicastRemoteObject implement
 
 		// Change HashMaps to String
 		returnedTotals = changeFinancialToLines(dailyTotals);
-
+		System.out.println("Returned Financial Reports");
 		return returnedTotals;
 	}
 	
@@ -168,7 +176,7 @@ public class RecordManager extends java.rmi.server.UnicastRemoteObject implement
 	 * @param left
 	 * @return
 	 */
-	private String changeOccupationToLines(HashMap<LocalDateTime, Integer> entered, HashMap<LocalDateTime, Integer> left)
+	private String changeOccupationToLines(HashMap<LocalDateTime, Integer> entered, HashMap<LocalDateTime, Integer> left) throws RemoteException
 	{
 		String ret = "Cars Entered Garage: \nTimestamp\t\tTotal Entered Garage\n";
 		for(LocalDateTime day : entered.keySet())
@@ -189,7 +197,7 @@ public class RecordManager extends java.rmi.server.UnicastRemoteObject implement
 	 * @param dailyTotals
 	 * @return
 	 */
-	private String changeFinancialToLines(HashMap<LocalDateTime, Double> dailyTotals) 
+	private String changeFinancialToLines(HashMap<LocalDateTime, Double> dailyTotals)  throws RemoteException
 	{
 		String ret = "Financial Records: \n\nDay\tTotal Made\n";
 		for(LocalDateTime day : dailyTotals.keySet())

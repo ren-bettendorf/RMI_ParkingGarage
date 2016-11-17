@@ -3,9 +3,7 @@ package server;
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-
-import common.CarStatus;
+import java.util.ArrayList;
 import common.Ticket;
 
 public class ParkingGarage extends java.rmi.server.UnicastRemoteObject implements IParkingGarage, Serializable
@@ -14,13 +12,13 @@ public class ParkingGarage extends java.rmi.server.UnicastRemoteObject implement
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private HashSet<Ticket> ticketsInGarage = new HashSet<Ticket>();
-	private RecordManager recordManager = new RecordManager();
+	private ArrayList<Ticket> ticketsInGarage = new ArrayList<Ticket>();
+	private IRecordManager recordManager;
 	private int maxOccupancy;
 
 	public ParkingGarage(int maxOccu) throws RemoteException
 	{
-		super();
+		recordManager = new RecordManager();
 		this.maxOccupancy = maxOccu;
 	}
 
@@ -41,8 +39,7 @@ public class ParkingGarage extends java.rmi.server.UnicastRemoteObject implement
 			{
 				t = new Ticket(LocalDateTime.now());
 				ticketsInGarage.add(t);
-
-				recordManager.addOccupationRecord(t.getCheckinTime(), CarStatus.ENTER);
+				
 			}
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
@@ -53,8 +50,18 @@ public class ParkingGarage extends java.rmi.server.UnicastRemoteObject implement
 	
 	public void removeCarFromGarage(Ticket ticket) throws RemoteException
 	{
-		ticketsInGarage.remove(ticket);
+		ticketsInGarage.remove(ticket);	
+	}
+	
+	public String runReports(LocalDateTime begin, LocalDateTime end) throws RemoteException
+	{
+		StringBuilder sb = new StringBuilder();
 		
+		sb.append(runOccupationReports(begin,end));
+		sb.append("\n");
+		sb.append(runFinancialReports(begin,end));
+		
+		return sb.toString();
 	}
 	
 	/**
@@ -63,7 +70,7 @@ public class ParkingGarage extends java.rmi.server.UnicastRemoteObject implement
 	 * @param end ending date
 	 * @return Occupation Report
 	 */
-	public String runOccupationReports(LocalDateTime begin, LocalDateTime end)
+	public String runOccupationReports(LocalDateTime begin, LocalDateTime end) throws RemoteException
 	{
 		return recordManager.getOccupationRecords(begin, end);
 	}
@@ -74,31 +81,29 @@ public class ParkingGarage extends java.rmi.server.UnicastRemoteObject implement
 	 * @param end ending date
 	 * @return Financial Report
 	 */
-	public String runFinancialReports(LocalDateTime begin, LocalDateTime end)
+	public String runFinancialReports(LocalDateTime begin, LocalDateTime end) throws RemoteException
 	{
-		LocalDateTime beginLDT = LocalDateTime.of(begin.getYear(), begin.getMonth(), begin.getDayOfMonth(), 0, 0);
 
-		LocalDateTime endLDT = LocalDateTime.of(end.getYear(), end.getMonth(), end.getDayOfMonth(), 0, 0);
-
-		return recordManager.getFinancialRecords(beginLDT, endLDT);
+		System.out.println("Returned Parking Garage Reports");
+		return recordManager.getFinancialRecords(begin, end);
 	}
 	
-	public RecordManager getRecordManager()
+	public IRecordManager getRecordManager() throws RemoteException
 	{
 		return recordManager;
 	}
 	
-	public int getMaxCarOccupancy()
+	public int getMaxCarOccupancy() throws RemoteException
 	{
 		return maxOccupancy;
 	}
 	
-	public int getCarOccupancy()
+	public int getCarOccupancy() throws RemoteException
 	{
 		return ticketsInGarage.size();
 	}
 	
-	public HashSet<Ticket> getTickets()
+	public ArrayList<Ticket> getTickets() throws RemoteException
 	{
 		return ticketsInGarage;
 	}
