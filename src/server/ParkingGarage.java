@@ -41,19 +41,20 @@ public class ParkingGarage extends java.rmi.server.UnicastRemoteObject implement
 
 	public ITicket addCarToGarage() throws RemoteException
 	{
-		ITicket t = null;
+		ITicket ticket = null;
 		try {
 			if( !checkGarageSpace() )
 			{
-				t = new Ticket(LocalDateTime.now());
-				ticketsInGarage.add(t);
+				ticket = new Ticket(LocalDateTime.now());
+				ticket = (ITicket)UnicastRemoteObject.exportObject(ticket, 0);
+				ticketsInGarage.add(ticket);
 				
 			}
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return t;
+		return ticket;
 	}
 	
 	public void removeCarFromGarage(ITicket ticket) throws RemoteException
