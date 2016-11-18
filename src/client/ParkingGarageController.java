@@ -69,7 +69,7 @@ public class ParkingGarageController {
 
 		if (ticket != null) {
 			try {
-				garage.addExitRecords(ticket, amountPaid, ldt);
+				//garage.addExitRecords(ticket, amountPaid, ldt);
 				
 				garage.removeCarFromGarage(ticket);
 			} catch (RemoteException e) {
@@ -82,6 +82,18 @@ public class ParkingGarageController {
 		}
 
 		return retStatus;
+	}
+	
+	public boolean checkGarageSpace()
+	{
+		boolean status = true;
+		try {
+			status = garage.checkGarageSpace();
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return status;
 	}
 
 	public String getGarageOccupancyStatus() {
@@ -144,9 +156,8 @@ public class ParkingGarageController {
 		Ticket ticket = findTicket(ticketID);
 		if (ticket != null) {
 			if (ticket.getPaymentStatus()) {
-				payForTicket(ticket);
+				return true;
 			}
-			return true;
 		}
 		return false;
 	}
@@ -158,7 +169,7 @@ public class ParkingGarageController {
 	 *            uniqueID to be found
 	 * @return t Ticket if found otherwise null
 	 */
-	private Ticket findTicket(String ticketID) {
+	public Ticket findTicket(String ticketID) {
 		ArrayList<Ticket> tickets = null;
 		try {
 			tickets = garage.getTickets();

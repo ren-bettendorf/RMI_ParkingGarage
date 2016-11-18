@@ -58,6 +58,6 @@ public class Ticket implements Serializable, Remote {
 	@Override
 	public String toString()
 	{
-		return checkinTime.toString();
+		return uniqueID;
 	}
 }
