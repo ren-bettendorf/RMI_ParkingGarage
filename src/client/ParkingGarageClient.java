@@ -7,6 +7,8 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -17,14 +19,14 @@ import javax.swing.JPanel;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import common.Ticket;
+
 public class ParkingGarageClient {
 	static ParkingGarageController controller;
 
 	private static String garageOccupancyPrefix = "Garage Occupancy: ";
 	private static JButton entryButton;
 	private static JButton exitButton;
-	private static JButton cashPaymentButton;
-	private static JButton creditPaymentButton;
 	private static JButton adminPaymentButton;
 	private static JButton reportsButton;
 	private static JLabel occupancyLabel;
@@ -54,8 +56,6 @@ public class ParkingGarageClient {
 
 		createEntryButton();
 		createExitButton();
-		createCashPaymentButton();
-		createCreditPaymentButton();
 		createAdminPaymentButton();
 		createReportsButton();
 
@@ -66,7 +66,7 @@ public class ParkingGarageClient {
 		constraints.gridx = 0;
 		constraints.gridy = 0;
 		pane.add(occupancyLabel, constraints);
-		
+
 		constraints.gridx = 2;
 		constraints.gridy = 0;
 		pane.add(maxOccupancyLabel, constraints);
@@ -81,15 +81,11 @@ public class ParkingGarageClient {
 
 		constraints.gridx = 0;
 		constraints.gridy = 2;
-		pane.add(cashPaymentButton, constraints);
-		
-		constraints.gridx = 1;
-		constraints.gridy = 2;
-		pane.add(creditPaymentButton, constraints);
-		
-		constraints.gridx = 2;
-		constraints.gridy = 2;
 		pane.add(adminPaymentButton, constraints);
+
+		constraints.gridx = 0;
+		constraints.gridy = 3;
+		pane.add(reportsButton, constraints);
 
 		pane.setBorder(BorderFactory.createEmptyBorder(30, // top
 				80, // left
@@ -102,12 +98,15 @@ public class ParkingGarageClient {
 	private static void createEntryButton() {
 		entryButton = new JButton("Entrance Gate");
 		entryButton.setMnemonic(KeyEvent.VK_I);
+
 		entryButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent ae) {
+
 				if (controller.addCarToGarage()) {
 					JOptionPane.showMessageDialog(null, "Gate has space and ticket is dispensed");
 					JOptionPane.showMessageDialog(null, "Ticket Number: " + controller.getLastTicket().toString());
-					// Just to make copying the ticket number easier for mine and your sanity
+					// Just to make copying the ticket number easier for mine
+					// and your sanity
 					System.out.println(controller.getLastTicket().toString());
 					JOptionPane.showMessageDialog(null, "Please enter garage. Gate opens.");
 					JOptionPane.showMessageDialog(null, "Gate closes once car enters.");
@@ -123,63 +122,106 @@ public class ParkingGarageClient {
 	private static void createExitButton() {
 		exitButton = new JButton("Exit Gate");
 		exitButton.setMnemonic(KeyEvent.VK_I);
+
 		exitButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent ae) {
+
 				String ticketID = JOptionPane.showInputDialog("Please enter your ticket number: ");
-				if(controller.attemptCheckoutCar(ticketID))
-				{
-					JOptionPane.showMessageDialog(null, "Ticket and Payment accepted.");
-					JOptionPane.showMessageDialog(null, "Gate Opening.");
-					JOptionPane.showMessageDialog(null, "Gate closes once car leaves.");
-				}else {
-					JOptionPane.showMessageDialog(null, "Sorry but this ticket hasn't been paid for. Please select cash, credit, or payment problem");
+				Ticket ticket = controller.findTicket(ticketID);
+				if (ticket != null) {
+					Object[] options = { "Cash", "Credit" };
+					int paymentResponse = JOptionPane.showOptionDialog(null, "Please select a payment option", null,
+							JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[1]);
+
+					if (paymentResponse == 0) {
+						createCashPayment(ticket);
+					} else if (paymentResponse == 1) {
+						try{
+							createCreditPayment(ticket);
+						}catch(Exception e)
+						{
+							
+						}
+					}
+				} else if (!ticketID.equals("")) {
+					JOptionPane.showMessageDialog(null,
+							"Sorry something went wrong");
 				}
 			}
 		});
 	}
 
-	private static void createCashPaymentButton() {
-		cashPaymentButton = new JButton("Cash Payment");
-		cashPaymentButton.setMnemonic(KeyEvent.VK_I);
-		cashPaymentButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				String ticketID = JOptionPane.showInputDialog("Please enter your ticket number: ");
-				
-				// Make sure ticket hasn't been paid for yet
-				if(!controller.attemptCheckoutCar(ticketID))
-				{
-					
-				}
+	private static void createCashPayment(Ticket ticket) {
+
+		// Make sure ticket hasn't been paid for yet
+		if (ticket != null) {
+			double amountDue = controller.getAmountDueOnTicket(ticket);
+			double amountPaid = -1.00;
+			try {
+				amountPaid = Double
+						.parseDouble(JOptionPane.showInputDialog("Amount Due: " + amountDue + "\nPlease enter cash: "));
+
+			} catch (NumberFormatException nfe) {
+				JOptionPane.showMessageDialog(null, "Sorry something went wrong with your payment please try again.");
+				return;
 			}
-		});
+
+			controller.payForTicketCash(ticket, amountPaid);
+		} else {
+			JOptionPane.showMessageDialog(null, "Sorry something went wrong");
+			return;
+		}
 	}
-	
-	private static void createCreditPaymentButton() {
-		creditPaymentButton = new JButton("Credit Payment");
-		creditPaymentButton.setMnemonic(KeyEvent.VK_I);
-		creditPaymentButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				String ticketID = JOptionPane.showInputDialog("Please enter your ticket number: ");
-				
-				// Make sure ticket hasn't been paid for yet
-				if(!controller.attemptCheckoutCar(ticketID))
-				{
-					
-				}
+
+	private static void createCreditPayment(Ticket ticket) {
+
+		// Make sure ticket hasn't been paid for yet
+		if (ticket != null) {
+			double amountDue = controller.getAmountDueOnTicket(ticket);
+			double amountPaid = -1.00;
+			String ccNumber = "";
+			try {
+				amountPaid = Double
+						.parseDouble(JOptionPane.showInputDialog("Amount Due: " + amountDue + "\nPlease enter cash: "));
+
+				ccNumber = JOptionPane.showInputDialog("Please enter credit card number: ");
+			} catch (NumberFormatException nfe) {
+				JOptionPane.showMessageDialog(null, "Sorry something went wrong with your payment please try again.");
+				return;
 			}
-		});
+			DateTimeFormatter df = DateTimeFormatter.ofPattern("MM/yyyy");
+			LocalDateTime expDate = null;
+
+			try {
+				expDate = (LocalDateTime) df.parse(JOptionPane.showInputDialog("Please expiration date (MM/yyyy): "));
+			} catch (Exception exc) {
+				JOptionPane.showMessageDialog(null, "Sorry something went wrong with your payment please try again.");
+				return;
+			}
+
+			controller.payForTicketCredit(ticket, ccNumber, expDate, amountPaid);
+		} else {
+			JOptionPane.showMessageDialog(null, "Sorry something went wrong");
+		}
 	}
-	
+
 	private static void createAdminPaymentButton() {
-		adminPaymentButton = new JButton("Issue with Ticket Payment");
+		adminPaymentButton = new JButton("Exit Gate");
 		adminPaymentButton.setMnemonic(KeyEvent.VK_I);
+
 		adminPaymentButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				// Add button action
+			public void actionPerformed(ActionEvent ae) {
+				String userAddress = JOptionPane.showInputDialog("Please enter the address");
+				String userName = JOptionPane.showInputDialog("Please enter the name");
+				String userPhoneNumber = JOptionPane.showInputDialog("Please enter the phone number");
+				
+				controller.payForTicketAdmin(userName, userAddress, userPhoneNumber);
+				//Payment payment = new AdminPayment(userAddress, userName, userPhoneNumber, amountDue, ldt);
+		
 			}
 		});
 	}
-	
+
 	private static void createReportsButton() {
 		reportsButton = new JButton("Print Reports");
 		reportsButton.setMnemonic(KeyEvent.VK_I);
@@ -202,10 +244,9 @@ public class ParkingGarageClient {
 
 	private static void updateOccupancyLabel() {
 		occupancyLabel.setText(garageOccupancyPrefix + controller.getGarageOccupancyStatus());
-		if(!controller.checkGarageSpace())
-		{
+		if (!controller.checkGarageSpace()) {
 			maxOccupancyLabel.setText(maxOccupancyPrefix + VACANCYLABEL);
-		}else {
+		} else {
 
 			maxOccupancyLabel.setText(maxOccupancyPrefix + FULLLABEL);
 		}

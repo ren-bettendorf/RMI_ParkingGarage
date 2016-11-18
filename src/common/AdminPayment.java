@@ -3,15 +3,19 @@ package common;
 import java.rmi.RemoteException;
 import java.time.LocalDateTime;
 
-public class AdminPayment implements IPayment
+public class AdminPayment extends java.rmi.server.UnicastRemoteObject implements IPayment
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7098396884277547391L;
 	private String userAddress, userName, userPhoneNumber;
 	private LocalDateTime dateOwed;
 	private double amountOwed;
 	private double amountPaid;
 	private LocalDateTime dateOfPayment;
 	
-	public AdminPayment(String userAddress, String userName, String userPhoneNumber, double amountOwed, LocalDateTime dateOwed)
+	public AdminPayment(String userAddress, String userName, String userPhoneNumber, double amountOwed, LocalDateTime dateOwed) throws RemoteException
 	{
 		if(userAddress == null || userName == null || userPhoneNumber == null ||  dateOwed == null)
 		{

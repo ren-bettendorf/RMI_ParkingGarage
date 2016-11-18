@@ -6,8 +6,10 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import common.AdminPayment;
 import common.CarStatus;
 import common.CashPayment;
+import common.CreditPayment;
 import common.IPayment;
 import common.Ticket;
 
@@ -203,5 +205,30 @@ public class RecordManager implements Serializable, IRecordManager {
 		
 		return payment;
 	}
-
+	
+	public IPayment createCreditPayment(String cardNumber, LocalDateTime expDate, double amountPaid, LocalDateTime dateOfPayment) throws RemoteException
+	{
+		IPayment payment = null;
+		try {
+			payment = new CreditPayment(cardNumber, expDate, amountPaid, dateOfPayment);
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return payment;
+	}
+	
+	public IPayment createAdminPayment(String userAddress, String userName, String userPhoneNumber, double amountOwed, LocalDateTime dateOwed ) throws RemoteException
+	{
+		IPayment payment = null;
+		try {
+			payment = new AdminPayment(userAddress, userName, userPhoneNumber, amountOwed, dateOwed);
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return payment;
+	}
 }

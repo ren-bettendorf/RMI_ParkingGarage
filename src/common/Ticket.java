@@ -12,11 +12,12 @@ public class Ticket implements Serializable, Remote {
 	private static final long serialVersionUID = 4580375843474140985L;
 	private LocalDateTime checkinTime;
 	private String uniqueID;
-	private boolean paymentStatus = false;
+	private boolean paymentStatus;
 	
 	
 	public Ticket(LocalDateTime checkinTime)
 	{
+		setPaymentStatus(false);
 		this.checkinTime = checkinTime;
 		// Trim off all non numeric characters
 		uniqueID = checkinTime.toString().replaceAll("[^0-9]", "");

@@ -31,4 +31,7 @@ public interface IParkingGarage extends java.rmi.Remote {
 	public int getCarOccupancy() throws RemoteException;
 	public int getMaxCarOccupancy() throws RemoteException;
 	public IRecordManager getRecordManager() throws RemoteException;
+	public void addFinancialRecordCash(Ticket ticket, double amountPaid, LocalDateTime ldt) throws RemoteException;
+	public void addFinancialRecordCredit(Ticket ticket, String ccNumber, LocalDateTime expDate, double amountPaid,LocalDateTime ldt) throws RemoteException;
+	public void addFinancialRecordAdmin(String userAddress, String userName, String userPhoneNumber, double amountOwed, LocalDateTime dateOwed) throws RemoteException;
 }
