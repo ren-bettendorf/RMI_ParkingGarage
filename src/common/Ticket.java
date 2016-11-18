@@ -1,9 +1,10 @@
 package common;
 
 import java.io.Serializable;
+import java.rmi.Remote;
 import java.time.LocalDateTime;
 
-public class Ticket implements Serializable {
+public class Ticket implements Serializable, Remote {
 	
 	/**
 	 * 

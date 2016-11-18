@@ -2,7 +2,6 @@ package server;
 
 import java.io.Serializable;
 import java.rmi.RemoteException;
-import java.rmi.server.UnicastRemoteObject;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
@@ -43,6 +42,7 @@ public class ParkingGarage extends java.rmi.server.UnicastRemoteObject implement
 			if( !checkGarageSpace() )
 			{
 				t = new Ticket(LocalDateTime.now());
+				
 				ticketsInGarage.add(t);
 				
 			}
@@ -63,8 +63,9 @@ public class ParkingGarage extends java.rmi.server.UnicastRemoteObject implement
 		recordManager.addOccupationRecord(ticket.getCheckinTime(), CarStatus.ENTER);
 	}
 	
-	public void addExitRecords(Ticket ticket, IPayment payment) throws RemoteException
+	public void addExitRecords(Ticket ticket, double amountPaid, LocalDateTime ldt) throws RemoteException
 	{
+		IPayment payment = recordManager.createCashPayment(amountPaid, ldt);
 		recordManager.addFinancialRecord(ticket, payment);
 		recordManager.addOccupationRecord(payment.getDateOfPayment(), CarStatus.LEAVE);
 	}

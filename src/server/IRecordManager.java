@@ -43,5 +43,6 @@ public interface IRecordManager {
 	 */
 	public String getFinancialRecords(LocalDateTime begin, LocalDateTime end) throws RemoteException;
 	
+	public IPayment createCashPayment(double amountPaid, LocalDateTime ldt) throws RemoteException;
 
 }

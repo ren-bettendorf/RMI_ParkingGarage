@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import server.IParkingGarage;
-import server.IRecordManager;
 
 public class ParkingGarageController {
 
@@ -63,15 +62,14 @@ public class ParkingGarageController {
 	 * @param payment
 	 *            payment the car used
 	 */
-	public boolean removeCarFromGarage(String ticketID, IPayment payment) {
+	public boolean removeCarFromGarage(String ticketID, double amountPaid, LocalDateTime ldt) {
 		boolean retStatus = true;
-		IRecordManager records = null;
 
 		Ticket ticket = findTicket(ticketID);
 
 		if (ticket != null) {
 			try {
-				garage.addExitRecords(ticket, payment);
+				garage.addExitRecords(ticket, amountPaid, ldt);
 				
 				garage.removeCarFromGarage(ticket);
 			} catch (RemoteException e) {

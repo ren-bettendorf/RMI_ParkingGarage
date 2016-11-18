@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import common.CarStatus;
+import common.CashPayment;
 import common.IPayment;
 import common.Ticket;
 
@@ -188,6 +189,19 @@ public class RecordManager implements Serializable, IRecordManager {
 			ret += day + ", \t" + dailyTotals.get(day) + "\n";
 		}
 		return ret;
+	}
+	
+	public IPayment createCashPayment(double amountPaid, LocalDateTime ldt) throws RemoteException
+	{
+		IPayment payment = null;
+		try {
+			payment = new CashPayment(amountPaid, ldt);
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return payment;
 	}
 
 }

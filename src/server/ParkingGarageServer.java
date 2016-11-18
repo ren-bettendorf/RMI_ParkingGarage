@@ -11,7 +11,6 @@ public class ParkingGarageServer {
 	public ParkingGarageServer(String url, int occupationSize) throws RemoteException {
 		this.url = url;
 		try {
-			System.setProperty("java.rmi.server.hostname","192.168.0.13");
 			IParkingGarage garage = new ParkingGarage(occupationSize);
 			Naming.rebind(url, garage);
 			System.out.println("Parking Garage server running...");
@@ -26,7 +25,7 @@ public class ParkingGarageServer {
 	// java CalculatorServer <host> <port>
 
 	public static void main(String args[]) {
-		String url = new String("rmi://192.168.0.13:2500/ParkingGarageServer");
+		String url = new String("rmi://"+ args[0] + ":" + args[1] + "/ParkingGarageServer");
 		try {
 			new ParkingGarageServer(url, Integer.parseInt(args[2]));
 		} catch (RemoteException e) {
