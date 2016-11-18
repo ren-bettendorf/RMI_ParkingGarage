@@ -41,8 +41,6 @@ public class ParkingGarageController {
 	public boolean addCarToGarage() {
 		try {
 			setLastTicket(garage.addCarToGarage());
-
-			garage.addEntryRecords(getLastTicket());
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}

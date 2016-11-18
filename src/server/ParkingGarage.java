@@ -44,7 +44,7 @@ public class ParkingGarage extends java.rmi.server.UnicastRemoteObject implement
 				t = new Ticket(LocalDateTime.now());
 				
 				ticketsInGarage.add(t);
-				
+				addEntryRecords(t);
 			}
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
@@ -58,7 +58,7 @@ public class ParkingGarage extends java.rmi.server.UnicastRemoteObject implement
 		ticketsInGarage.remove(ticket);	
 	}
 	
-	public void addEntryRecords(Ticket ticket) throws RemoteException
+	private void addEntryRecords(Ticket ticket) throws RemoteException
 	{
 		recordManager.addOccupationRecord(ticket.getCheckinTime(), CarStatus.ENTER);
 	}
