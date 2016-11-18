@@ -1,10 +1,8 @@
-package server;
+package common;
 
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.time.LocalDateTime;
-
-import common.CarStatus;
 
 public class OccupationRecord implements Serializable
 {

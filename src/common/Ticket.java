@@ -1,9 +1,10 @@
 package common;
 
 import java.io.Serializable;
+import java.rmi.RemoteException;
 import java.time.LocalDateTime;
 
-public class Ticket implements Serializable {
+public class Ticket extends java.rmi.server.UnicastRemoteObject implements Serializable, ITicket {
 	
 	/**
 	 * 
@@ -14,7 +15,7 @@ public class Ticket implements Serializable {
 	private boolean paymentStatus = false;
 	
 	
-	public Ticket(LocalDateTime checkinTime)
+	public Ticket(LocalDateTime checkinTime) throws RemoteException
 	{
 		this.checkinTime = checkinTime;
 		// Trim off all non numeric characters
@@ -23,22 +24,22 @@ public class Ticket implements Serializable {
 		uniqueID = uniqueID.substring(0, uniqueID.length()-2);
 	}
 	
-	public LocalDateTime getCheckinTime()
+	public LocalDateTime getCheckinTime() throws RemoteException
 	{
 		return checkinTime;
 	}
 
-	public String getUniqueID()
+	public String getUniqueID() throws RemoteException
 	{
 		return uniqueID;
 	}
 	
-	public boolean getPaymentStatus() 
+	public boolean getPaymentStatus()  throws RemoteException
 	{
 		return paymentStatus;
 	}
 
-	public void setPaymentStatus(boolean paymentStatus) 
+	public void setPaymentStatus(boolean paymentStatus)  throws RemoteException
 	{
 		this.paymentStatus = paymentStatus;
 	}
@@ -49,7 +50,12 @@ public class Ticket implements Serializable {
 		if(!(obj == null) && obj instanceof Ticket) 
 		{
 			Ticket tic = (Ticket)obj;
-			return this.checkinTime.equals(tic.getCheckinTime());
+			try {
+				return this.checkinTime.equals(tic.getCheckinTime());
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		return false;
 	}

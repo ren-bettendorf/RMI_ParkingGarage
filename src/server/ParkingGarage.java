@@ -7,7 +7,10 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 import common.CarStatus;
+import common.IParkingGarage;
 import common.IPayment;
+import common.IRecordManager;
+import common.ITicket;
 import common.Ticket;
 
 public class ParkingGarage extends java.rmi.server.UnicastRemoteObject implements IParkingGarage, Serializable
@@ -16,14 +19,14 @@ public class ParkingGarage extends java.rmi.server.UnicastRemoteObject implement
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private ArrayList<Ticket> ticketsInGarage = new ArrayList<Ticket>();
+	private ArrayList<ITicket> ticketsInGarage = new ArrayList<ITicket>();
 	private IRecordManager recordManager;
 	private int maxOccupancy;
 
 	public ParkingGarage(int maxOccu) throws RemoteException
 	{
 		super();
-		recordManager = new RecordManager();
+		this.recordManager = new RecordManager();
 		this.maxOccupancy = maxOccu;
 	}
 
@@ -36,9 +39,9 @@ public class ParkingGarage extends java.rmi.server.UnicastRemoteObject implement
 		return false;
 	}
 
-	public Ticket addCarToGarage() throws RemoteException
+	public ITicket addCarToGarage() throws RemoteException
 	{
-		Ticket t = null;
+		ITicket t = null;
 		try {
 			if( !checkGarageSpace() )
 			{
@@ -53,31 +56,42 @@ public class ParkingGarage extends java.rmi.server.UnicastRemoteObject implement
 		return t;
 	}
 	
-	public void removeCarFromGarage(Ticket ticket) throws RemoteException
+	public void removeCarFromGarage(ITicket ticket) throws RemoteException
 	{
 		ticketsInGarage.remove(ticket);	
 	}
 	
-	public void addEntryRecords(Ticket ticket) throws RemoteException
+	public void addEntryRecords(ITicket ticket) throws RemoteException
 	{
+		if(ticket == null)
+		{
+			throw new IllegalArgumentException("Trouble: TICKET NULL");
+		}
 		recordManager.addOccupationRecord(ticket.getCheckinTime(), CarStatus.ENTER);
 	}
 	
-	public void addExitRecords(Ticket ticket, IPayment payment) throws RemoteException
+	public void addExitRecords(ITicket ticket, IPayment payment) throws RemoteException
 	{
+		if(ticket == null)
+		{
+			throw new IllegalArgumentException("Trouble: TICKET NULL");
+		}
+		if(payment == null)
+		{
+			throw new IllegalArgumentException("Trouble: PAYMENT NULL");
+		}
 		recordManager.addFinancialRecord(ticket, payment);
 		recordManager.addOccupationRecord(payment.getDateOfPayment(), CarStatus.LEAVE);
 	}
 	
 	public String runReports(LocalDateTime begin, LocalDateTime end) throws RemoteException
 	{
-		StringBuilder sb = new StringBuilder();
+		String retString = "";
 		
-		sb.append(runOccupationReports(begin,end));
-		sb.append("\n");
-		sb.append(runFinancialReports(begin,end));
+		retString += runOccupationReports(begin,end);
+		retString += runFinancialReports(begin,end);
 		
-		return sb.toString();
+		return retString;
 	}
 	
 	/**
@@ -117,7 +131,7 @@ public class ParkingGarage extends java.rmi.server.UnicastRemoteObject implement
 		return ticketsInGarage.size();
 	}
 	
-	public ArrayList<Ticket> getTickets() throws RemoteException
+	public ArrayList<ITicket> getTickets() throws RemoteException
 	{
 		return ticketsInGarage;
 	}

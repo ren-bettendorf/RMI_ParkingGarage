@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.time.LocalDateTime;
 
-public class CashPayment extends java.rmi.server.UnicastRemoteObject implements IPayment, Serializable
+public class CashPayment implements IPayment, Serializable
 {
 	/**
 	 * 

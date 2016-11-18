@@ -2,12 +2,17 @@ package server;
 
 import java.io.Serializable;
 import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import common.CarStatus;
+import common.FinancialRecord;
 import common.IPayment;
+import common.IRecordManager;
+import common.ITicket;
+import common.OccupationRecord;
 import common.Ticket;
 
 public class RecordManager implements Serializable, IRecordManager {
@@ -19,7 +24,6 @@ public class RecordManager implements Serializable, IRecordManager {
 	private ArrayList<OccupationRecord> occupationRecords = new ArrayList<OccupationRecord>();
 
 	public RecordManager() throws RemoteException {
-		super();
 	}
 
 	public int getOccupationRecordsSize() throws RemoteException {
@@ -105,8 +109,9 @@ public class RecordManager implements Serializable, IRecordManager {
 	 * @param payment
 	 *            Payment used to pay for ticket
 	 */
-	public void addFinancialRecord(Ticket ticket, IPayment payment) throws RemoteException {
-		FinancialRecord record = new FinancialRecord(ticket, payment);
+	public void addFinancialRecord(ITicket ticket, IPayment payment) throws RemoteException {
+		IPayment stub = (IPayment) UnicastRemoteObject.exportObject(payment, 0);
+		FinancialRecord record = new FinancialRecord(ticket, stub);
 		financialRecords.add(record);
 	}
 

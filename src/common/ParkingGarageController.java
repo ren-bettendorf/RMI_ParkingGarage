@@ -1,21 +1,25 @@
 package common;
 
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import server.IParkingGarage;
-import server.IRecordManager;
 
-public class ParkingGarageController {
+public class ParkingGarageController extends java.rmi.server.UnicastRemoteObject implements Serializable {
 
-	Ticket lastTicket;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2763667860187372667L;
+	ITicket lastTicket;
 	IParkingGarage garage;
 
-	public ParkingGarageController(String url) {
+	public ParkingGarageController(String url) throws RemoteException {
 		try {
 			this.garage = (IParkingGarage) Naming.lookup(url);
 
@@ -39,9 +43,11 @@ public class ParkingGarageController {
 
 	public boolean addCarToGarage() {
 		try {
-			setLastTicket(garage.addCarToGarage());
-
-			garage.addEntryRecords(getLastTicket());
+			setLastTicket((ITicket)garage.addCarToGarage());
+			
+			ITicket stub = (ITicket)UnicastRemoteObject.exportObject(getLastTicket(), 0);
+			
+			garage.addEntryRecords(stub);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -65,13 +71,13 @@ public class ParkingGarageController {
 	 */
 	public boolean removeCarFromGarage(String ticketID, IPayment payment) {
 		boolean retStatus = true;
-		IRecordManager records = null;
 
-		Ticket ticket = findTicket(ticketID);
+		ITicket ticket = findTicket(ticketID);
 
-		if (ticket != null) {
+		if (ticket != null && payment != null) {
 			try {
-				garage.addExitRecords(ticket, payment);
+				IPayment payStub = (IPayment)UnicastRemoteObject.exportObject(payment, 0);
+				garage.addExitRecords(ticket, payStub);
 				
 				garage.removeCarFromGarage(ticket);
 			} catch (RemoteException e) {
@@ -128,9 +134,14 @@ public class ParkingGarageController {
 	 * @param ticket
 	 *            Ticket's payment status to be checked
 	 */
-	public void payForTicket(Ticket ticket) {
-		if (!ticket.getPaymentStatus()) {
-			ticket.setPaymentStatus(true);
+	public void payForTicket(ITicket ticket) {
+		try {
+			if (!ticket.getPaymentStatus()) {
+				ticket.setPaymentStatus(true);
+			}
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 
 	}
@@ -143,10 +154,15 @@ public class ParkingGarageController {
 	 * @return boolean true if car checked out, false otherwise
 	 */
 	public boolean attemptCheckoutCar(String ticketID) {
-		Ticket ticket = findTicket(ticketID);
+		ITicket ticket = findTicket(ticketID);
 		if (ticket != null) {
-			if (ticket.getPaymentStatus()) {
-				payForTicket(ticket);
+			try {
+				if (ticket.getPaymentStatus()) {
+					payForTicket(ticket);
+				}
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 			return true;
 		}
@@ -160,17 +176,22 @@ public class ParkingGarageController {
 	 *            uniqueID to be found
 	 * @return t Ticket if found otherwise null
 	 */
-	private Ticket findTicket(String ticketID) {
-		ArrayList<Ticket> tickets = null;
+	private ITicket findTicket(String ticketID) {
+		ArrayList<ITicket> tickets = null;
 		try {
 			tickets = garage.getTickets();
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
 		Ticket t = null;
-		for (Ticket ticket : tickets) {
-			if (ticket.getUniqueID().equals(ticketID)) {
-				return ticket;
+		for (ITicket ticket : tickets) {
+			try {
+				if (ticket.getUniqueID().equals(ticketID)) {
+					return ticket;
+				}
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 
@@ -187,19 +208,25 @@ public class ParkingGarageController {
 	 * @return double amount due for parking
 	 */
 	public double amountDueOnTicket(String ticketID) {
-		Ticket t = findTicket(ticketID);
+		ITicket t = findTicket(ticketID);
 		LocalDateTime ldt = LocalDateTime.now();
-		LocalDateTime tempDateTime = LocalDateTime.from(t.getCheckinTime());
+		LocalDateTime tempDateTime = null;
+		try {
+			tempDateTime = LocalDateTime.from(t.getCheckinTime());
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		double amountDue = tempDateTime.until(ldt, ChronoUnit.HOURS) + 1.00;
 
 		return amountDue;
 	}
 
-	public Ticket getLastTicket() {
+	public ITicket getLastTicket() {
 		return lastTicket;
 	}
 
-	public void setLastTicket(Ticket ticket) {
+	public void setLastTicket(ITicket ticket) {
 		lastTicket = ticket;
 	}
 }

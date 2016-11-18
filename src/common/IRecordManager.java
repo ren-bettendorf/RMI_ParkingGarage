@@ -1,13 +1,9 @@
-package server;
+package common;
 
 import java.rmi.RemoteException;
 import java.time.LocalDateTime;
 
-import common.CarStatus;
-import common.IPayment;
-import common.Ticket;
-
-public interface IRecordManager {
+public interface IRecordManager  {
 	
 	public int getOccupationRecordsSize() throws RemoteException;
 	
@@ -33,7 +29,7 @@ public interface IRecordManager {
 	 * @param ticket Ticket paid for
 	 * @param payment Payment used to pay for ticket
 	 */
-	public void addFinancialRecord(Ticket ticket, IPayment payment) throws RemoteException;
+	public void addFinancialRecord(ITicket ticket, IPayment payment) throws RemoteException;
 
 	/**
 	 * Queries Financial Records over a time frame

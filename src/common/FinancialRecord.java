@@ -1,11 +1,8 @@
-package server;
+package common;
 
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.time.LocalDateTime;
-
-import common.IPayment;
-import common.Ticket;
 
 public class FinancialRecord implements Serializable
 {
@@ -13,9 +10,9 @@ public class FinancialRecord implements Serializable
 	 * 
 	 */
 	private static final long serialVersionUID = -2422293596902632133L;
-	private Ticket ticket;
+	private ITicket ticket;
 	private IPayment payment;
-	public FinancialRecord(Ticket ticket, IPayment payment) throws RemoteException
+	public FinancialRecord(ITicket ticket, IPayment payment) throws RemoteException
 	{
 		if(payment == null)
 		{
@@ -28,7 +25,7 @@ public class FinancialRecord implements Serializable
 		this.payment = payment;
 	}
 
-	public Ticket getTicket()
+	public ITicket getTicket()
 	{
 		return ticket;
 	}
