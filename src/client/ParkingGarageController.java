@@ -1,4 +1,4 @@
-package common;
+package client;
 
 import java.net.MalformedURLException;
 import java.rmi.Naming;
@@ -7,6 +7,8 @@ import java.rmi.RemoteException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+
+import common.Ticket;
 import server.IParkingGarage;
 
 public class ParkingGarageController {

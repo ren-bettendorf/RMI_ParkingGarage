@@ -4,7 +4,6 @@ import java.rmi.RemoteException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
-import common.IPayment;
 import common.Ticket;
 
 public interface IParkingGarage extends java.rmi.Remote {
