@@ -22,11 +22,14 @@ public class RecordManagerTest
 	public void setUp() throws Exception 
 	{
 		recordManager = new RecordManager();
-		garage = new ParkingGarage(10);
 		LocalDateTime ldt = LocalDateTime.of(2016, 9, 27, 13, 0);
+		LocalDateTime ldtNextDay = LocalDateTime.of(2016, 9, 28, 13, 0);
+		LocalDateTime ldtNotInQuery = LocalDateTime.of(2016, 10, 3, 13, 0);
 		recordManager.addOccupationRecord(ldt, CarStatus.ENTER);
 		recordManager.addOccupationRecord(ldt.plusHours(2), CarStatus.LEAVE);
 		recordManager.addFinancialRecord(new Ticket(ldt), new CashPayment(10.00, ldt));
+		recordManager.addFinancialRecord(new Ticket(ldtNextDay), new CashPayment(20.00, ldtNextDay));
+		recordManager.addFinancialRecord(new Ticket(ldtNotInQuery), new CashPayment(20.00, ldtNotInQuery));
 	}
 	
 	//getOccupationRecords(LocalDateTime begin, LocalDateTime end)
@@ -64,7 +67,7 @@ public class RecordManagerTest
 	@Test
 	public void testBadFinancialQuery()
 	{
-		String expected = "Financial Records: \n\nDay\tTotal Made\n";
+		String expected = "Financial Records: \n\nDay\t\t\tTotal Made\n";
 		String actual = "";
 		try {
 			actual = recordManager.getFinancialRecords(LocalDateTime.of(1, 1, 1, 1, 1), LocalDateTime.of(2, 1, 1, 1, 1));
@@ -77,10 +80,11 @@ public class RecordManagerTest
 	@Test
 	public void testGoodFinancialQuery()
 	{
-		String expected = "Financial Records: \n\nDay\tTotal Made\n2016-09-27T13:00, \t\t10.0\n";
+		String expected = "Financial Records: \n\nDay\t\t\tTotal Made\n2016-09-28T13:00, \t20.0\n2016-09-27T13:00, \t10.0\n";
+		
 		String actual = "";
 		try {
-			actual = recordManager.getFinancialRecords(LocalDateTime.of(2016, 9, 26, 1, 1), LocalDateTime.of(2016, 9, 28, 1, 1));
+			actual = recordManager.getFinancialRecords(LocalDateTime.of(2016, 9, 26, 1, 1), LocalDateTime.of(2016, 10, 1, 1, 1));
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

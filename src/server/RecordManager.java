@@ -190,11 +190,10 @@ public class RecordManager implements Serializable, IRecordManager {
 	 */
 	private String changeFinancialToLines(HashMap<LocalDateTime, Double> dailyTotals) throws RemoteException {
 		StringBuilder ret = new StringBuilder();
-		ret.append("Financial Records: \n\nDay\tTotal Made\n");
+		ret.append("Financial Records: \n\nDay\t\t\tTotal Made\n");
 		for (LocalDateTime day : dailyTotals.keySet()) {
-			ret.append(day + ", \t\t" + dailyTotals.get(day) + "\n");
+			ret.append(day + ", \t" + dailyTotals.get(day) + "\n");
 		}
-		ret.append("");
 		return ret.toString();
 	}
 
