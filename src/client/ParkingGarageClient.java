@@ -106,12 +106,14 @@ public class ParkingGarageClient {
 							createCashPayment(ticket);
 						} catch (Exception e) {
 							JOptionPane.showMessageDialog(null, "Something went wrong with the payment");
+							return;
 						}
 					} else if (paymentResponse == 1) {
 						try {
 							createCreditPayment(ticket);
 						} catch (Exception e) {
 							JOptionPane.showMessageDialog(null, "Something went wrong with the payment");
+							return;
 						}
 					}
 
@@ -137,8 +139,7 @@ public class ParkingGarageClient {
 				amountPaid = Double
 						.parseDouble(JOptionPane.showInputDialog("Amount Due: " + amountDue + "\nPlease enter cash: "));
 				if (amountPaid <= 0) {
-					JOptionPane.showMessageDialog(null, "Sorry but payment can't be less than or equal to 0");
-					return;
+					throw new IllegalArgumentException( "Sorry but payment can't be less than or equal to 0");
 				}
 			} catch (NumberFormatException nfe) {
 				JOptionPane.showMessageDialog(null, "Sorry something went wrong with your payment please try again.");
@@ -170,8 +171,7 @@ public class ParkingGarageClient {
 				amountPaid = Double
 						.parseDouble(JOptionPane.showInputDialog("Amount Due: " + amountDue + "\nPlease enter cash: "));
 				if (amountPaid <= 0) {
-					JOptionPane.showMessageDialog(null, "Sorry but payment can't be less than or equal to 0");
-					return;
+					throw new IllegalArgumentException("Sorry but payment can't be less than or equal to 0");				
 				}
 				ccNumber = JOptionPane.showInputDialog("Please enter credit card number: ");
 			} catch (NumberFormatException nfe) {
