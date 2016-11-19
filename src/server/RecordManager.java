@@ -20,17 +20,10 @@ public class RecordManager implements Serializable, IRecordManager {
 	private static final long serialVersionUID = 9092826944053480194L;
 	private ArrayList<FinancialRecord> financialRecords = new ArrayList<FinancialRecord>();
 	private ArrayList<OccupationRecord> occupationRecords = new ArrayList<OccupationRecord>();
+	private ArrayList<IPayment> adminRecords = new ArrayList<IPayment>();
 
 	public RecordManager() throws RemoteException {
 		super();
-	}
-
-	public int getOccupationRecordsSize() throws RemoteException {
-		return occupationRecords.size();
-	}
-
-	public int getFinancialRecordsSize() throws RemoteException {
-		return financialRecords.size();
 	}
 
 	/**
@@ -112,6 +105,16 @@ public class RecordManager implements Serializable, IRecordManager {
 		FinancialRecord record = new FinancialRecord(ticket, payment);
 		financialRecords.add(record);
 	}
+	
+	public void addAdminRecord(IPayment payment) throws RemoteException
+	{
+		adminRecords.add(payment);
+	}
+	
+	public int getAdminRecordSize() throws RemoteException
+	{
+		return adminRecords.size();
+	}
 
 	/**
 	 * Queries Financial Records over a time frame
@@ -129,8 +132,7 @@ public class RecordManager implements Serializable, IRecordManager {
 			for (FinancialRecord record : financialRecords) {
 				// Check to see if record is not in query time frame
 				LocalDateTime recordDate = record.getRecordDate();
-				if(recordDate == null)
-				{
+				if (recordDate == null) {
 					continue;
 				}
 				if (recordDate.isBefore(begin) || recordDate.isAfter(end)) {
@@ -167,16 +169,17 @@ public class RecordManager implements Serializable, IRecordManager {
 	 */
 	private String changeOccupationToLines(HashMap<LocalDateTime, Integer> entered,
 			HashMap<LocalDateTime, Integer> left) throws RemoteException {
-		String ret = "Cars Entered Garage: \nTimestamp\t\tTotal Entered Garage\n";
+		StringBuilder ret = new StringBuilder();
+		ret.append("Cars Entered Garage: \nTimestamp\t\tTotal Entered Garage\n");
 		for (LocalDateTime day : entered.keySet()) {
-			ret += day + ", \t" + entered.get(day) + "\n";
+			ret.append(day + ", \t" + entered.get(day) + "\n");
 		}
-		ret += "Cars Left Garage: \nTimestamp\t\tTotal Left Garage\n";
+		ret.append("Cars Left Garage: \nTimestamp\t\tTotal Left Garage\n");
 		for (LocalDateTime day : left.keySet()) {
-			ret += day + ", \t" + left.get(day) + "\n";
+			ret.append(day + ", \t" + left.get(day) + "\n");
 		}
-		ret += "\n\n";
-		return ret;
+		ret.append("\n\n");
+		return ret.toString();
 	}
 
 	/**
@@ -186,15 +189,16 @@ public class RecordManager implements Serializable, IRecordManager {
 	 * @return
 	 */
 	private String changeFinancialToLines(HashMap<LocalDateTime, Double> dailyTotals) throws RemoteException {
-		String ret = "Financial Records: \n\nDay\tTotal Made\n";
+		StringBuilder ret = new StringBuilder();
+		ret.append("Financial Records: \n\nDay\tTotal Made\n");
 		for (LocalDateTime day : dailyTotals.keySet()) {
-			ret += day + ", \t" + dailyTotals.get(day) + "\n";
+			ret.append(day + ", \t\t" + dailyTotals.get(day) + "\n");
 		}
-		return ret;
+		ret.append("");
+		return ret.toString();
 	}
-	
-	public IPayment createCashPayment(double amountPaid, LocalDateTime ldt) throws RemoteException
-	{
+
+	public IPayment createCashPayment(double amountPaid, LocalDateTime ldt) throws RemoteException {
 		IPayment payment = null;
 		try {
 			payment = new CashPayment(amountPaid, ldt);
@@ -202,12 +206,12 @@ public class RecordManager implements Serializable, IRecordManager {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		return payment;
 	}
-	
-	public IPayment createCreditPayment(String cardNumber, LocalDateTime expDate, double amountPaid, LocalDateTime dateOfPayment) throws RemoteException
-	{
+
+	public IPayment createCreditPayment(String cardNumber, LocalDateTime expDate, double amountPaid,
+			LocalDateTime dateOfPayment) throws RemoteException {
 		IPayment payment = null;
 		try {
 			payment = new CreditPayment(cardNumber, expDate, amountPaid, dateOfPayment);
@@ -215,12 +219,12 @@ public class RecordManager implements Serializable, IRecordManager {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		return payment;
 	}
-	
-	public IPayment createAdminPayment(String userAddress, String userName, String userPhoneNumber, double amountOwed, LocalDateTime dateOwed ) throws RemoteException
-	{
+
+	public IPayment createAdminPayment(String userAddress, String userName, String userPhoneNumber, double amountOwed,
+			LocalDateTime dateOwed) throws RemoteException {
 		IPayment payment = null;
 		try {
 			payment = new AdminPayment(userAddress, userName, userPhoneNumber, amountOwed, dateOwed);
@@ -228,7 +232,7 @@ public class RecordManager implements Serializable, IRecordManager {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		return payment;
 	}
 }

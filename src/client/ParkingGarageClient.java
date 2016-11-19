@@ -7,8 +7,9 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -35,9 +36,6 @@ public class ParkingGarageClient {
 	private static String VACANCYLABEL = "VACANCY";
 	private static String FULLLABEL = "FULL";
 	private static JLabel maxOccupancyLabel;
-	private static JButton maxOccupancyButton;
-	private static String errorStringPrefix = "Error: ";
-	private static JLabel errorLabel;
 
 	// Specify the look and feel to use. Valid values:
 	// null (use the default), "Metal", "System", "Motif", "GTK+"
@@ -46,7 +44,6 @@ public class ParkingGarageClient {
 	public static Component createComponents() {
 		occupancyLabel = new JLabel(garageOccupancyPrefix);
 		maxOccupancyLabel = new JLabel(maxOccupancyPrefix + VACANCYLABEL);
-		errorLabel = new JLabel(errorStringPrefix);
 		/*
 		 * An easy way to put space between a top-level container and its
 		 * contents is to put the contents in a JPanel that has an "empty"
@@ -59,44 +56,15 @@ public class ParkingGarageClient {
 		createAdminPaymentButton();
 		createReportsButton();
 
-		GridBagConstraints constraints = new GridBagConstraints();
+		createPanel(pane);
 
 		showParkingGarageScene(true);
-
-		constraints.gridx = 0;
-		constraints.gridy = 0;
-		pane.add(occupancyLabel, constraints);
-
-		constraints.gridx = 2;
-		constraints.gridy = 0;
-		pane.add(maxOccupancyLabel, constraints);
-
-		constraints.gridx = 0;
-		constraints.gridy = 1;
-		pane.add(entryButton, constraints);
-
-		constraints.gridx = 1;
-		constraints.gridy = 1;
-		pane.add(exitButton, constraints);
-
-		constraints.gridx = 0;
-		constraints.gridy = 2;
-		pane.add(adminPaymentButton, constraints);
-
-		constraints.gridx = 0;
-		constraints.gridy = 3;
-		pane.add(reportsButton, constraints);
-
-		pane.setBorder(BorderFactory.createEmptyBorder(30, // top
-				80, // left
-				30, // bottom
-				80)); // right
 
 		return pane;
 	}
 
 	private static void createEntryButton() {
-		entryButton = new JButton("Entrance Gate");
+		entryButton = new JButton("Entrance Garage");
 		entryButton.setMnemonic(KeyEvent.VK_I);
 
 		entryButton.addActionListener(new ActionListener() {
@@ -120,7 +88,7 @@ public class ParkingGarageClient {
 	}
 
 	private static void createExitButton() {
-		exitButton = new JButton("Exit Gate");
+		exitButton = new JButton("Exit Garage");
 		exitButton.setMnemonic(KeyEvent.VK_I);
 
 		exitButton.addActionListener(new ActionListener() {
@@ -134,18 +102,26 @@ public class ParkingGarageClient {
 							JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[1]);
 
 					if (paymentResponse == 0) {
-						createCashPayment(ticket);
+						try {
+							createCashPayment(ticket);
+						} catch (Exception e) {
+							JOptionPane.showMessageDialog(null, "Something went wrong with the payment");
+						}
 					} else if (paymentResponse == 1) {
-						try{
+						try {
 							createCreditPayment(ticket);
-						}catch(Exception e)
-						{
-							
+						} catch (Exception e) {
+							JOptionPane.showMessageDialog(null, "Something went wrong with the payment");
 						}
 					}
-				} else if (!ticketID.equals("")) {
-					JOptionPane.showMessageDialog(null,
-							"Sorry something went wrong");
+
+					JOptionPane.showMessageDialog(null, "Payment Accepted. Opening Exit Gate");
+					JOptionPane.showMessageDialog(null, "Car exits garage");
+					JOptionPane.showMessageDialog(null, "Exit gate closes. Ready for next exit");
+
+					updateOccupancyLabel();
+				} else {
+					JOptionPane.showMessageDialog(null, "Sorry something went wrong");
 				}
 			}
 		});
@@ -160,17 +136,27 @@ public class ParkingGarageClient {
 			try {
 				amountPaid = Double
 						.parseDouble(JOptionPane.showInputDialog("Amount Due: " + amountDue + "\nPlease enter cash: "));
-
+				if (amountPaid <= 0) {
+					JOptionPane.showMessageDialog(null, "Sorry but payment can't be less than or equal to 0");
+					return;
+				}
 			} catch (NumberFormatException nfe) {
 				JOptionPane.showMessageDialog(null, "Sorry something went wrong with your payment please try again.");
 				return;
 			}
-
-			controller.payForTicketCash(ticket, amountPaid);
+			try {
+				controller.payForTicket(ticket, amountPaid);
+				if (amountPaid > amountDue) {
+					JOptionPane.showMessageDialog(null, "Refunded: " + (amountPaid - amountDue));
+				}
+			} catch (IllegalArgumentException iae) {
+				JOptionPane.showMessageDialog(null, "Something went wrong with the payment. Try again.");
+			}
 		} else {
 			JOptionPane.showMessageDialog(null, "Sorry something went wrong");
 			return;
 		}
+
 	}
 
 	private static void createCreditPayment(Ticket ticket) {
@@ -183,30 +169,42 @@ public class ParkingGarageClient {
 			try {
 				amountPaid = Double
 						.parseDouble(JOptionPane.showInputDialog("Amount Due: " + amountDue + "\nPlease enter cash: "));
-
+				if (amountPaid <= 0) {
+					JOptionPane.showMessageDialog(null, "Sorry but payment can't be less than or equal to 0");
+					return;
+				}
 				ccNumber = JOptionPane.showInputDialog("Please enter credit card number: ");
 			} catch (NumberFormatException nfe) {
 				JOptionPane.showMessageDialog(null, "Sorry something went wrong with your payment please try again.");
 				return;
 			}
-			DateTimeFormatter df = DateTimeFormatter.ofPattern("MM/yyyy");
+
+			SimpleDateFormat df = new SimpleDateFormat("MM/yyyy");
 			LocalDateTime expDate = null;
 
 			try {
-				expDate = (LocalDateTime) df.parse(JOptionPane.showInputDialog("Please expiration date (MM/yyyy): "));
+				Date date = df.parse(JOptionPane.showInputDialog("Please expiration date (MM/yyyy): "));
+				expDate = LocalDateTime.of(date.getYear() + 1900, date.getMonth() + 1, 1, 0, 0);
 			} catch (Exception exc) {
-				JOptionPane.showMessageDialog(null, "Sorry something went wrong with your payment please try again.");
+				JOptionPane.showMessageDialog(null, "Trouble : " + exc.toString());
 				return;
 			}
-
-			controller.payForTicketCredit(ticket, ccNumber, expDate, amountPaid);
+			try {
+				controller.payForTicket(ticket, ccNumber, expDate, amountPaid);
+				if (amountPaid > amountDue) {
+					JOptionPane.showMessageDialog(null, "Refunded: " + (amountPaid - amountDue));
+				}
+			} catch (IllegalArgumentException iae) {
+				JOptionPane.showMessageDialog(null, "Something went wrong with the payment. Try again.");
+			}
 		} else {
 			JOptionPane.showMessageDialog(null, "Sorry something went wrong");
 		}
+		updateOccupancyLabel();
 	}
 
 	private static void createAdminPaymentButton() {
-		adminPaymentButton = new JButton("Exit Gate");
+		adminPaymentButton = new JButton("Admin Payment");
 		adminPaymentButton.setMnemonic(KeyEvent.VK_I);
 
 		adminPaymentButton.addActionListener(new ActionListener() {
@@ -214,10 +212,9 @@ public class ParkingGarageClient {
 				String userAddress = JOptionPane.showInputDialog("Please enter the address");
 				String userName = JOptionPane.showInputDialog("Please enter the name");
 				String userPhoneNumber = JOptionPane.showInputDialog("Please enter the phone number");
-				
-				controller.payForTicketAdmin(userName, userAddress, userPhoneNumber);
-				//Payment payment = new AdminPayment(userAddress, userName, userPhoneNumber, amountDue, ldt);
-		
+
+				controller.payForTicket(userName, userAddress, userPhoneNumber);
+
 			}
 		});
 	}
@@ -227,7 +224,26 @@ public class ParkingGarageClient {
 		reportsButton.setMnemonic(KeyEvent.VK_I);
 		reportsButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// Add button action
+				SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+				LocalDateTime beginDate = null;
+				LocalDateTime endDate = null;
+				try {
+					Date date = df.parse(JOptionPane.showInputDialog("Please expiration date (MM/dd/yyyy): "));
+					beginDate = LocalDateTime.of(date.getYear() + 1900, date.getMonth() + 1, date.getDate(), 0, 0);
+				} catch (Exception exc) {
+					JOptionPane.showMessageDialog(null, "Trouble : " + exc.toString());
+					return;
+				}
+
+				try {
+					Date date = df.parse(JOptionPane.showInputDialog("Please expiration date (MM/dd/yyyy): "));
+					endDate = LocalDateTime.of(date.getYear() + 1900, date.getMonth() + 1, date.getDate(), 0, 0);
+				} catch (Exception exc) {
+					JOptionPane.showMessageDialog(null, "Trouble : " + exc.toString());
+					return;
+				}
+
+				JOptionPane.showMessageDialog(null, controller.runReports(beginDate, endDate));
 			}
 		});
 	}
@@ -249,15 +265,6 @@ public class ParkingGarageClient {
 		} else {
 
 			maxOccupancyLabel.setText(maxOccupancyPrefix + FULLLABEL);
-		}
-	}
-
-	public void actionPerformed(ActionEvent e) {
-		errorLabel.setVisible(false);
-		if (e.getSource() == maxOccupancyButton) {
-		} else if (e.getSource() == entryButton) {
-		} else if (e.getSource() == exitButton) {
-		} else if (e.getSource() == adminPaymentButton) {
 		}
 	}
 
@@ -316,6 +323,39 @@ public class ParkingGarageClient {
 		// Display the window.
 		frame.pack();
 		frame.setVisible(true);
+	}
+
+	private static void createPanel(JPanel pane) {
+		GridBagConstraints constraints = new GridBagConstraints();
+
+		constraints.gridx = 0;
+		constraints.gridy = 0;
+		pane.add(maxOccupancyLabel, constraints);
+
+		constraints.gridx = 0;
+		constraints.gridy = 1;
+		pane.add(occupancyLabel, constraints);
+
+		constraints.gridx = 0;
+		constraints.gridy = 2;
+		pane.add(entryButton, constraints);
+
+		constraints.gridx = 0;
+		constraints.gridy = 3;
+		pane.add(exitButton, constraints);
+
+		constraints.gridx = 0;
+		constraints.gridy = 4;
+		pane.add(adminPaymentButton, constraints);
+
+		constraints.gridx = 0;
+		constraints.gridy = 5;
+		pane.add(reportsButton, constraints);
+
+		pane.setBorder(BorderFactory.createEmptyBorder(30, // top
+				80, // left
+				30, // bottom
+				80)); // right
 	}
 
 	public static void main(String[] args) {

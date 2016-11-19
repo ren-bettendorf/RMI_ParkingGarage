@@ -25,7 +25,7 @@ public class ParkingGarage extends java.rmi.server.UnicastRemoteObject implement
 	}
 
 	public boolean checkGarageSpace() throws RemoteException {
-		if (ticketsInGarage.size() == maxOccupancy) {
+		if (ticketsInGarage.size() - recordManager.getAdminRecordSize() == maxOccupancy) {
 			return true;
 		}
 		return false;
@@ -58,21 +58,25 @@ public class ParkingGarage extends java.rmi.server.UnicastRemoteObject implement
 	public void addFinancialRecordCash(Ticket ticket, double amountPaid, LocalDateTime ldt) throws RemoteException {
 		IPayment payment = recordManager.createCashPayment(amountPaid, ldt);
 		recordManager.addFinancialRecord(ticket, payment);
+		addExitRecords(ticket, ldt);
 		ticket.setPaymentStatus(true);
 	}
 
-	public void addFinancialRecordCredit(Ticket ticket, String cardNumber, LocalDateTime expDate, double amountPaid, LocalDateTime dateOfPayment) throws RemoteException {
+	public void addFinancialRecordCredit(Ticket ticket, String cardNumber, LocalDateTime expDate, double amountPaid,
+			LocalDateTime dateOfPayment) throws RemoteException {
 		IPayment payment = recordManager.createCreditPayment(cardNumber, expDate, amountPaid, dateOfPayment);
 		recordManager.addFinancialRecord(ticket, payment);
+		addExitRecords(ticket, dateOfPayment);
 	}
-	
-	public void addFinancialRecordAdmin(String userAddress, String userName, String userPhoneNumber, double amountOwed, LocalDateTime dateOwed) throws RemoteException {
-		LocalDateTime today = LocalDateTime.now();
-		IPayment payment = recordManager.createAdminPayment(userAddress, userName, userPhoneNumber, amountOwed, dateOwed);
-		//recordManager.addFinancialRecord(payment);
+
+	public void addFinancialRecordAdmin(String userAddress, String userName, String userPhoneNumber, double amountOwed,
+			LocalDateTime dateOwed) throws RemoteException {
+		IPayment payment = recordManager.createAdminPayment(userAddress, userName, userPhoneNumber, amountOwed,
+				dateOwed);
+		recordManager.addAdminRecord(payment);
 	}
-	
-	public void addExitRecords(Ticket ticket, double amountPaid, LocalDateTime ldt) throws RemoteException {
+
+	public void addExitRecords(Ticket ticket, LocalDateTime ldt) throws RemoteException {
 		recordManager.addOccupationRecord(ldt, CarStatus.LEAVE);
 	}
 
@@ -121,7 +125,7 @@ public class ParkingGarage extends java.rmi.server.UnicastRemoteObject implement
 	}
 
 	public int getCarOccupancy() throws RemoteException {
-		return ticketsInGarage.size();
+		return ticketsInGarage.size() - recordManager.getAdminRecordSize();
 	}
 
 	public ArrayList<Ticket> getTickets() throws RemoteException {

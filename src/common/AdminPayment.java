@@ -3,8 +3,7 @@ package common;
 import java.rmi.RemoteException;
 import java.time.LocalDateTime;
 
-public class AdminPayment extends java.rmi.server.UnicastRemoteObject implements IPayment
-{
+public class AdminPayment extends java.rmi.server.UnicastRemoteObject implements IPayment {
 	/**
 	 * 
 	 */
@@ -14,14 +13,12 @@ public class AdminPayment extends java.rmi.server.UnicastRemoteObject implements
 	private double amountOwed;
 	private double amountPaid;
 	private LocalDateTime dateOfPayment;
-	
-	public AdminPayment(String userAddress, String userName, String userPhoneNumber, double amountOwed, LocalDateTime dateOwed) throws RemoteException
-	{
-		if(userAddress == null || userName == null || userPhoneNumber == null ||  dateOwed == null)
-		{
+
+	public AdminPayment(String userAddress, String userName, String userPhoneNumber, double amountOwed,
+			LocalDateTime dateOwed) throws RemoteException {
+		if (userAddress == null || userName == null || userPhoneNumber == null || dateOwed == null) {
 			throw new IllegalArgumentException("Null field");
-		}else if(amountOwed <= 0)
-		{
+		} else if (amountOwed <= 0) {
 			throw new IllegalArgumentException("Can't owe negative amount");
 		}
 		this.userAddress = userAddress;
@@ -31,29 +28,24 @@ public class AdminPayment extends java.rmi.server.UnicastRemoteObject implements
 		this.dateOwed = dateOwed;
 		this.amountPaid = 0.00;
 	}
-	
-	public double getAmountOwed()
-	{
+
+	public double getAmountOwed() {
 		return amountOwed;
 	}
-	
-	public LocalDateTime getDateOwed()
-	{
+
+	public LocalDateTime getDateOwed() {
 		return dateOwed;
 	}
-	
-	public String getUserAddress()
-	{
+
+	public String getUserAddress() {
 		return userAddress;
 	}
-	
-	public String getUserName()
-	{
+
+	public String getUserName() {
 		return userName;
 	}
-	
-	public String getUserPhoneNumber()
-	{
+
+	public String getUserPhoneNumber() {
 		return userPhoneNumber;
 	}
 
@@ -61,9 +53,8 @@ public class AdminPayment extends java.rmi.server.UnicastRemoteObject implements
 	public double getAmountPaid() throws RemoteException {
 		return amountPaid;
 	}
-	
-	public void setDateOfPayment(LocalDateTime date)
-	{
+
+	public void setDateOfPayment(LocalDateTime date) {
 		this.dateOfPayment = date;
 	}
 

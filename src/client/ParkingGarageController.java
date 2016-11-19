@@ -131,13 +131,14 @@ public class ParkingGarageController {
 	 * @param ticket
 	 *            Ticket's payment status to be checked
 	 */
-	public void payForTicketCash(Ticket ticket, double amountPaid) {
+	public void payForTicket(Ticket ticket, double amountPaid) {
 		if (!ticket.getPaymentStatus()) {
 			ticket.setPaymentStatus(true);
 			LocalDateTime ldt = LocalDateTime.of(LocalDateTime.now().getYear(), LocalDateTime.now().getMonthValue(),
 					LocalDateTime.now().getDayOfMonth(), LocalDateTime.now().getHour(), 0);
 			try {
 				garage.addFinancialRecordCash(ticket, amountPaid, ldt);
+				garage.removeCarFromGarage(ticket);
 			} catch (RemoteException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -145,28 +146,31 @@ public class ParkingGarageController {
 		}
 
 	}
-	
-	public void payForTicketAdmin(String userName, String userAddress, String userPhoneNumber) {
-			LocalDateTime ldt = LocalDateTime.of(LocalDateTime.now().getYear(), LocalDateTime.now().getMonthValue(),
-					LocalDateTime.now().getDayOfMonth(), LocalDateTime.now().getHour(), 0);
-			LocalDateTime dateOwed = ldt.plusWeeks(2);
-			try {
-				garage.addFinancialRecordAdmin(userName, userAddress, userPhoneNumber, 50.00, dateOwed);
-			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		
+
+	public void payForTicket(String userName, String userAddress, String userPhoneNumber) {
+		LocalDateTime ldt = LocalDateTime.of(LocalDateTime.now().getYear(), LocalDateTime.now().getMonthValue(),
+				LocalDateTime.now().getDayOfMonth(), LocalDateTime.now().getHour(), 0);
+		LocalDateTime dateOwed = ldt.plusWeeks(2);
+		try {
+			garage.addFinancialRecordAdmin(userName, userAddress, userPhoneNumber, 50.00, dateOwed);
+
+			// garage.removeCarFromGarage(ticket);
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 	}
-	
-	public void payForTicketCredit(Ticket ticket, String ccNumber, LocalDateTime expDate, double amountPaid) {
+
+	public void payForTicket(Ticket ticket, String ccNumber, LocalDateTime expDate, double amountPaid) {
 		if (!ticket.getPaymentStatus()) {
 			ticket.setPaymentStatus(true);
 			LocalDateTime ldt = LocalDateTime.of(LocalDateTime.now().getYear(), LocalDateTime.now().getMonthValue(),
 					LocalDateTime.now().getDayOfMonth(), LocalDateTime.now().getHour(), 0);
 			try {
 				garage.addFinancialRecordCredit(ticket, ccNumber, expDate, amountPaid, ldt);
+
+				garage.removeCarFromGarage(ticket);
 			} catch (RemoteException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -184,7 +188,7 @@ public class ParkingGarageController {
 	 */
 	public boolean checkTicketPayment(String ticketID) {
 		Ticket ticket = findTicket(ticketID);
-		
+
 		if (ticket != null) {
 			if (ticket.getPaymentStatus()) {
 				return true;

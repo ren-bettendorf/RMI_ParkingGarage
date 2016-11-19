@@ -3,8 +3,7 @@ package common;
 import java.rmi.RemoteException;
 import java.time.LocalDateTime;
 
-public class CreditPayment extends java.rmi.server.UnicastRemoteObject implements IPayment
-{
+public class CreditPayment extends java.rmi.server.UnicastRemoteObject implements IPayment {
 	/**
 	 * 
 	 */
@@ -14,20 +13,17 @@ public class CreditPayment extends java.rmi.server.UnicastRemoteObject implement
 
 	private double amountPaid;
 	private LocalDateTime dateOfPayment;
-	
-	public CreditPayment(String cardNumber, LocalDateTime expDate, double amountPaid, LocalDateTime dateOfPayment) throws RemoteException
-	{
+
+	public CreditPayment(String cardNumber, LocalDateTime expDate, double amountPaid, LocalDateTime dateOfPayment)
+			throws RemoteException {
 		// Credit Card Numbers must have 16 characters
-		if(cardNumber.length() != 16)
-		{
+		if (cardNumber.length() != 16) {
 			throw new IllegalArgumentException("Bad Credit Card Number");
 		}
 		// Disallow a negative payment
-		if(amountPaid <= 0)
-		{
+		if (amountPaid <= 0) {
 			throw new IllegalArgumentException("Amount paid can't be less than 0");
-		}else if(cardNumber == null || expDate == null || dateOfPayment == null)
-		{
+		} else if (cardNumber == null || expDate == null || dateOfPayment == null) {
 			throw new IllegalArgumentException("Null field");
 		}
 		this.cardNumber = cardNumber;
@@ -35,16 +31,15 @@ public class CreditPayment extends java.rmi.server.UnicastRemoteObject implement
 		this.amountPaid = amountPaid;
 		this.dateOfPayment = dateOfPayment;
 	}
-	
-	public String getCardNumber()
-	{
+
+	public String getCardNumber() {
 		return cardNumber;
 	}
-	
-	public LocalDateTime getExpirationDate()
-	{
+
+	public LocalDateTime getExpirationDate() {
 		return expirationDate;
 	}
+
 	@Override
 	public double getAmountPaid() throws RemoteException {
 		return amountPaid;
@@ -54,5 +49,5 @@ public class CreditPayment extends java.rmi.server.UnicastRemoteObject implement
 	public LocalDateTime getDateOfPayment() throws RemoteException {
 		return dateOfPayment;
 	}
-	
+
 }
