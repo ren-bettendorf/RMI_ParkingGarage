@@ -43,7 +43,7 @@ public class Ticket implements Serializable, Remote {
 	public boolean equals(Object obj) {
 		if (!(obj == null) && obj instanceof Ticket) {
 			Ticket tic = (Ticket) obj;
-			return this.checkinTime.equals(tic.getCheckinTime());
+			return this.uniqueID.equals(tic.getUniqueID());
 		}
 		return false;
 	}

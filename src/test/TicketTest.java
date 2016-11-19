@@ -16,13 +16,13 @@ public class TicketTest {
 	
 	@Before
 	public void setUp() throws Exception {
-		LocalDateTime ldt = LocalDateTime.now();
+		LocalDateTime ldt = LocalDateTime.of(2,1,1,1,1);
 		
 		ticket1 = new Ticket(ldt);
 		ticket2 = new Ticket(ldt);
 		
 		
-		ticket3 = new Ticket(LocalDateTime.now());
+		ticket3 = new Ticket(LocalDateTime.of(1,1,1,1,1));
 	}
 
 	@Test

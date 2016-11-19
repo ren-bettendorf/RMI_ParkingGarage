@@ -24,5 +24,16 @@ public class CashPaymentTest {
 			e.printStackTrace();
 		}
 	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public void testNullLDT()
+	{
+		try {
+			new CashPayment(1.00, null);
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 }
