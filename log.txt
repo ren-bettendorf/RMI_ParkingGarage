@@ -1,0 +1,114 @@
+commit 2f7f239be7231af077d17494c3d55ae14406a9f2
+Author: Ren Bettendorf <Ren Bettendorf>
+Date:   Fri Nov 18 18:11:35 2016 -0800
+
+    Added more tests
+
+commit 3e377c89bf295a4fd2e0f8d1736c77a20530d556
+Author: Ren Bettendorf <Ren Bettendorf>
+Date:   Fri Nov 18 17:29:00 2016 -0800
+
+    Updated the Financial Report to make it prettier
+
+commit e251d90542b07cc7d5442688757e4daff470cb65
+Author: Ren Bettendorf <Ren Bettendorf>
+Date:   Fri Nov 18 17:13:20 2016 -0800
+
+    Added back in tests
+
+commit ba68e9488907f2d2e32b803e6b0fce9e58eb6d44
+Author: Ren Bettendorf <Ren Bettendorf>
+Date:   Fri Nov 18 16:36:00 2016 -0800
+
+    Finished program. Working on refactors now
+
+commit 0bbec23b01e5f4086a782c8eb401940e41e0165f
+Author: Ren Bettendorf <Ren Bettendorf>
+Date:   Fri Nov 18 14:03:51 2016 -0800
+
+    Added more functions
+
+commit 64f83c71009e21353592672e1291191c2f0cd0fc
+Author: Ren Bettendorf <Ren Bettendorf>
+Date:   Fri Nov 18 11:25:05 2016 -0800
+
+    Added Entrance Button functionality, Added Exit button functionality, and buttons for payments and reports
+
+commit ad310ccfa5284f1699da33cca9fc7f74b94f0440
+Author: Ren Bettendorf <Ren Bettendorf>
+Date:   Thu Nov 17 22:05:53 2016 -0800
+
+    Yup need to make some more changes
+
+commit 0cf8e3e9aa70091950cec17016130ae597152641
+Author: Ren Bettendorf <Ren Bettendorf>
+Date:   Thu Nov 17 21:53:01 2016 -0800
+
+    Finished RMI part. Added Swing portion. Need to Pattern it up and finish
+
+commit 1bfdf586706f9ebbb220534380c0b52df339d0ff
+Author: Ren Bettendorf <Ren Bettendorf>
+Date:   Thu Nov 17 19:43:17 2016 -0800
+
+    IT IS WORKING
+
+commit 44fa5c6f8df34cdb8d68dd68bc8cc1264fbd9cff
+Author: Ren Bettendorf <Ren Bettendorf>
+Date:   Thu Nov 17 13:33:19 2016 -0800
+
+    Removed exiting garage due to bug
+
+commit be1b69512d65461e82494ae773e4635e7d52c388
+Author: Ren Bettendorf <Ren Bettendorf>
+Date:   Wed Nov 16 21:32:11 2016 -0800
+
+    Bug is in removing car from garage
+
+commit 0c2c21e00cdf706ed7ee314e66ab96a3193c9c63
+Author: Ren Bettendorf <Ren Bettendorf>
+Date:   Wed Nov 16 21:00:15 2016 -0800
+
+    Added a bug where the client hangs after running reports with a nullpointerexception
+
+commit f8db028fe5548815b3609cd6a272968c90ae87cb
+Author: Ren Bettendorf <Ren Bettendorf>
+Date:   Tue Nov 15 21:55:49 2016 -0800
+
+    Removed EntryGate and ExitGate and moved functionality to ParkingGarageController
+
+commit 33f270226338f620d14bb1b34372d19cfa4291a1
+Author: Ren Bettendorf <Ren Bettendorf>
+Date:   Tue Nov 15 21:35:40 2016 -0800
+
+    Refactoring to incorporate the ParkingGarageController moreso
+
+commit a135832fdbf363e33e58f1d1a5587228c542130c
+Author: Ren Bettendorf <Ren Bettendorf>
+Date:   Tue Nov 15 20:34:48 2016 -0800
+
+    Separated most of the Model and View into allowing a Controller to function
+
+commit b09255ee4d956304670dad25dcfec00790d6fe53
+Author: Ren Bettendorf <Ren Bettendorf>
+Date:   Tue Nov 15 19:36:28 2016 -0800
+
+    Added Command Line client testing of the RMI. Working with multiple windows and displaying information correctly
+
+commit a2f3a805f80735452bf4d9686218a5ba38e872c8
+Merge: 5934d6a 0178fcc
+Author: Ren Bettendorf <Ren Bettendorf>
+Date:   Mon Nov 14 23:29:46 2016 -0800
+
+    Merge branch 'master' of https://github.com/renaldorini/RMI_ParkingGarage
+
+commit 5934d6afaa86cfc31f8e71166e6c34fe6f0fb650
+Author: Ren Bettendorf <Ren Bettendorf>
+Date:   Mon Nov 14 23:23:30 2016 -0800
+
+    First commit with working RMI
+
+commit 0178fcc872f699145fc9d0a4898fafdf4eb244f7
+Author: Ren Bettendorf <renaldorini@gmail.com>
+Date:   Mon Nov 14 23:22:27 2016 -0800
+
+    Initial commit

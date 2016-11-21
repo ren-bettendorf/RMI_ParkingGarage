@@ -8,10 +8,11 @@ import java.util.ArrayList;
 
 import common.CarStatus;
 import common.IParkingGarage;
-import common.IPayment;
-import common.IRecordManager;
-import common.ITicket;
-import common.Ticket;
+import cs414.a5.rbetten.server.IPayment;
+import cs414.a5.rbetten.server.IRecordManager;
+import cs414.a5.rbetten.server.ITicket;
+import cs414.a5.rbetten.server.Ticket;
+import cs414.a5.rbetten.server.RecordManager;
 
 public class ParkingGarage extends java.rmi.server.UnicastRemoteObject implements IParkingGarage, Serializable
 {
