@@ -2,16 +2,27 @@ package cs414.a5.rbetten.server;
 
 import java.io.Serializable;
 import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+<<<<<<< HEAD:src/server/RecordManager.java
+import common.CarStatus;
+import common.FinancialRecord;
+import common.IPayment;
+import common.IRecordManager;
+import common.ITicket;
+import common.OccupationRecord;
+import common.Ticket;
+=======
 import cs414.a5.rbetten.common.AdminPayment;
 import cs414.a5.rbetten.common.CarStatus;
 import cs414.a5.rbetten.common.CashPayment;
 import cs414.a5.rbetten.common.CreditPayment;
 import cs414.a5.rbetten.common.IPayment;
 import cs414.a5.rbetten.common.Ticket;
+>>>>>>> 76eb227836a5e3da999e4736b1fc54bf73efa3dc:cs414/a5/rbetten/server/RecordManager.java
 
 public class RecordManager implements Serializable, IRecordManager {
 	/**
@@ -23,7 +34,6 @@ public class RecordManager implements Serializable, IRecordManager {
 	private ArrayList<IPayment> adminRecords = new ArrayList<IPayment>();
 
 	public RecordManager() throws RemoteException {
-		super();
 	}
 
 	/**
@@ -101,8 +111,9 @@ public class RecordManager implements Serializable, IRecordManager {
 	 * @param payment
 	 *            Payment used to pay for ticket
 	 */
-	public void addFinancialRecord(Ticket ticket, IPayment payment) throws RemoteException {
-		FinancialRecord record = new FinancialRecord(ticket, payment);
+	public void addFinancialRecord(ITicket ticket, IPayment payment) throws RemoteException {
+		IPayment stub = (IPayment) UnicastRemoteObject.exportObject(payment, 0);
+		FinancialRecord record = new FinancialRecord(ticket, stub);
 		financialRecords.add(record);
 	}
 	
