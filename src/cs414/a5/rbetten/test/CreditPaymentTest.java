@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 import org.junit.Before;
 import org.junit.Test;
 
-import cs414.a5.rbetten.common.CashPayment;
 import cs414.a5.rbetten.common.CreditPayment;
 
 public class CreditPaymentTest {

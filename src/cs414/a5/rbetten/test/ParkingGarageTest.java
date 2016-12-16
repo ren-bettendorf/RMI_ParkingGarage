@@ -1,6 +1,5 @@
 package cs414.a5.rbetten.test;
 
-import static org.junit.Assert.*;
 
 import java.rmi.RemoteException;
 

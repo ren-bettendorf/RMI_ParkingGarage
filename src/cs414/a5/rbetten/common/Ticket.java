@@ -6,9 +6,6 @@ import java.time.LocalDateTime;
 
 public class Ticket implements Serializable, Remote {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 4580375843474140985L;
 	private LocalDateTime checkinTime;
 	private String uniqueID;
@@ -17,9 +14,9 @@ public class Ticket implements Serializable, Remote {
 	public Ticket(LocalDateTime checkinTime) {
 		setPaymentStatus(false);
 		this.checkinTime = checkinTime;
-		// Trim off all non numeric characters
+
 		uniqueID = checkinTime.toString().replaceAll("[^0-9]", "");
-		// Trim off the milliseconds
+
 		uniqueID = uniqueID.substring(0, uniqueID.length() - 2);
 	}
 
@@ -39,7 +36,7 @@ public class Ticket implements Serializable, Remote {
 		this.paymentStatus = paymentStatus;
 	}
 
-	@Override
+
 	public boolean equals(Object obj) {
 		if (!(obj == null) && obj instanceof Ticket) {
 			Ticket tic = (Ticket) obj;
@@ -48,7 +45,7 @@ public class Ticket implements Serializable, Remote {
 		return false;
 	}
 
-	@Override
+
 	public String toString() {
 		return uniqueID;
 	}
