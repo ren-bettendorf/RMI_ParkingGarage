@@ -5,11 +5,12 @@ import java.rmi.RemoteException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
+import client.ParkingGarageObserver;
 import common.CarStatus;
 import common.IPayment;
 import common.Ticket;
 
-public class ParkingGarage extends java.rmi.server.UnicastRemoteObject implements IParkingGarage, Serializable {
+public class ParkingGarage extends java.rmi.server.UnicastRemoteObject implements IParkingGarage, ParkingGarageSubject, Serializable {
 	/**
 	 * 
 	 */
@@ -130,6 +131,24 @@ public class ParkingGarage extends java.rmi.server.UnicastRemoteObject implement
 
 	public ArrayList<Ticket> getTickets() throws RemoteException {
 		return ticketsInGarage;
+	}
+
+	@Override
+	public void attach(ParkingGarageObserver obs) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void detach(ParkingGarageObserver obs) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void updateObservers(int occupancy) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

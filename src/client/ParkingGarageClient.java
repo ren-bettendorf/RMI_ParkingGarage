@@ -22,7 +22,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 import common.Ticket;
 
-public class ParkingGarageClient {
+public class ParkingGarageClient implements ParkingGarageObserver {
 	static ParkingGarageController controller;
 
 	private static String garageOccupancyPrefix = "Garage Occupancy: ";
@@ -366,6 +366,12 @@ public class ParkingGarageClient {
 				createAndShowGUI();
 			}
 		});
+	}
+
+	@Override
+	public void update(int occupancy) {
+		
+		
 	}
 
 }
