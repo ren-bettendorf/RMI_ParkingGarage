@@ -113,7 +113,7 @@ public class ParkingGarageController {
 		return sb.toString();
 	}
 
-	public String runOccuReports(LocalDateTime begin, LocalDateTime end) {
+	private String runOccuReports(LocalDateTime begin, LocalDateTime end) {
 		String sb = null;
 		try {
 			sb = garage.runOccupationReports(begin, end);
@@ -123,7 +123,7 @@ public class ParkingGarageController {
 		return sb;
 	}
 
-	public String runReports(LocalDateTime begin, LocalDateTime end) {
+	private String runReports(LocalDateTime begin, LocalDateTime end) {
 		String sb = null;
 		try {
 			sb = garage.runReports(begin, end);
@@ -141,7 +141,7 @@ public class ParkingGarageController {
 	 * @param ticket
 	 *            Ticket's payment status to be checked
 	 */
-	public void payForTicket(Ticket ticket, double amountPaid) {
+	private void payForTicket(Ticket ticket, double amountPaid) {
 		if (!ticket.getPaymentStatus()) {
 			ticket.setPaymentStatus(true);
 			LocalDateTime ldt = LocalDateTime.of(LocalDateTime.now().getYear(), LocalDateTime.now().getMonthValue(),
