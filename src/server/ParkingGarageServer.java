@@ -19,7 +19,7 @@ public class ParkingGarageServer {
 	}
 
 	// run the program using
-	// java CalculatorServer <host> <port>
+	// java ParkingGarageServer <host> <port> <garageSize>
 
 	public static void main(String args[]) {
 		String url = new String("rmi://"+ args[0] + ":" + args[1] + "/ParkingGarageServer");
