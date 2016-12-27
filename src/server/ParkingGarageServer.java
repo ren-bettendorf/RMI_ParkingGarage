@@ -8,7 +8,7 @@ public class ParkingGarageServer {
 	
 	public ParkingGarageServer(String url, int occupationSize) throws RemoteException {
 		try {
-			ParkingGarage garage = new ParkingGarage(occupationSize);
+			IParkingGarage garage = new ParkingGarage(occupationSize);
 			Naming.rebind(url, garage);
 			System.out.println("Parking Garage server running...");
 		} catch (RemoteException re) {

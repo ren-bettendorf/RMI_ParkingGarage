@@ -5,12 +5,12 @@ import java.rmi.RemoteException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
-import client.ParkingGarageObserver;
+import client.ParkingGarageView;
 import common.CarStatus;
 import common.IPayment;
 import common.Ticket;
 
-public class ParkingGarage extends java.rmi.server.UnicastRemoteObject implements IParkingGarage, ParkingGarageSubject, Serializable {
+public class ParkingGarage extends java.rmi.server.UnicastRemoteObject implements IParkingGarage, Serializable {
 	/**
 	 * 
 	 */
@@ -18,7 +18,7 @@ public class ParkingGarage extends java.rmi.server.UnicastRemoteObject implement
 	private ArrayList<Ticket> ticketsInGarage = new ArrayList<Ticket>();
 	private IRecordManager recordManager;
 	private int maxOccupancy;
-	private ArrayList<ParkingGarageObserver> observersList = new ArrayList<ParkingGarageObserver>();
+	private ArrayList<ParkingGarageView> observersList = new ArrayList<ParkingGarageView>();
 
 	public ParkingGarage(int maxOccu) throws RemoteException {
 		super();
@@ -51,7 +51,7 @@ public class ParkingGarage extends java.rmi.server.UnicastRemoteObject implement
 
 				ticketsInGarage.add(t);
 				addEntryRecords(t);
-				updateObservers(garageOccupancy());
+				updateObservers();
 			}
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
@@ -62,7 +62,7 @@ public class ParkingGarage extends java.rmi.server.UnicastRemoteObject implement
 
 	public void removeCarFromGarage(Ticket ticket) throws RemoteException {
 		ticketsInGarage.remove(ticket);
-		updateObservers(garageOccupancy());
+		updateObservers();
 	}
 
 	private void addEntryRecords(Ticket ticket) throws RemoteException {
@@ -88,7 +88,7 @@ public class ParkingGarage extends java.rmi.server.UnicastRemoteObject implement
 		IPayment payment = recordManager.createAdminPayment(userAddress, userName, userPhoneNumber, amountOwed,
 				dateOwed);
 		recordManager.addAdminRecord(payment);
-		updateObservers(garageOccupancy());
+		updateObservers();
 	}
 
 	public void addExitRecords(Ticket ticket, LocalDateTime ldt) throws RemoteException {
@@ -146,22 +146,22 @@ public class ParkingGarage extends java.rmi.server.UnicastRemoteObject implement
 	public ArrayList<Ticket> getTickets() throws RemoteException {
 		return ticketsInGarage;
 	}
-
-	@Override
-	public void attach(ParkingGarageObserver obs) {
+	
+	public void attach(ParkingGarageView obs) {
 		observersList.add(obs);
+		updateObservers();
 	}
 
-	@Override
-	public void detach(ParkingGarageObserver obs) {
+	public void detach(ParkingGarageView obs) {
 		observersList.remove(obs);
+		System.out.println("Detaching obs");
 	}
 
-	@Override
-	public void updateObservers(int occupancy) {
-		for(ParkingGarageObserver obs : observersList)
+	public void updateObservers() {
+		for(ParkingGarageView obs : observersList)
 		{
-			obs.update(occupancy, checkGarageSpace());
+			System.out.println("SERVER: Attaching " + obs.getName() + ":" + garageOccupancy() + ":" + !checkGarageSpace());
+			obs.update(garageOccupancy(), !checkGarageSpace());
 		}
 	}
 

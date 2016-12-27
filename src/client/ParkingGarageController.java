@@ -16,17 +16,17 @@ import javax.swing.JButton;
 import javax.swing.JOptionPane;
 
 import common.Ticket;
-import server.ParkingGarage;
+import server.IParkingGarage;
 
 public class ParkingGarageController {
 
 	private Ticket lastTicket;
-	private ParkingGarage garage;
+	private IParkingGarage garage;
 	private JButton entryButton, exitButton, adminPaymentButton, reportsButton;
 
 	public ParkingGarageController(String url) {
 		try {
-			this.garage = (ParkingGarage) Naming.lookup(url);
+			this.garage = (IParkingGarage) Naming.lookup(url);
 
 		} catch (RemoteException re) {
 			System.out.println("RemoteException");
@@ -46,8 +46,6 @@ public class ParkingGarageController {
 		}
 	}
 	
-	
-
 	public boolean addCarToGarage() {
 		try {
 			setLastTicket(garage.addCarToGarage());
@@ -92,7 +90,12 @@ public class ParkingGarageController {
 
 	public boolean checkGarageSpace() {
 		boolean status = true;
-		status = garage.checkGarageSpace();
+		try {
+			status = garage.checkGarageSpace();
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return status;
 	}
 
@@ -421,14 +424,6 @@ public class ParkingGarageController {
 		}
 	
 	}
-
-
-
-	public void attachObserver(ParkingGarageObserver obs) {
-		garage.attach(obs);		
-	}
-
-
 
 	public void attachButtons(JButton entryButton, JButton exitButton, JButton adminPaymentButton,
 			JButton reportsButton) {

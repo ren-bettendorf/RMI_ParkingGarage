@@ -4,6 +4,7 @@ import java.rmi.RemoteException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
+import client.ParkingGarageView;
 import common.Ticket;
 
 public interface IParkingGarage extends java.rmi.Remote {
@@ -53,4 +54,10 @@ public interface IParkingGarage extends java.rmi.Remote {
 
 	public void addFinancialRecordAdmin(String userAddress, String userName, String userPhoneNumber, double amountOwed,
 			LocalDateTime dateOwed) throws RemoteException;
+	
+	public void attach(ParkingGarageView obs) throws RemoteException ;
+
+	public void detach(ParkingGarageView obs) throws RemoteException;
+
+	public void updateObservers() throws RemoteException;
 }
