@@ -18,6 +18,7 @@ public class ParkingGarage extends java.rmi.server.UnicastRemoteObject implement
 	private ArrayList<Ticket> ticketsInGarage = new ArrayList<Ticket>();
 	private IRecordManager recordManager;
 	private int maxOccupancy;
+	private ArrayList<ParkingGarageObserver> observersList = new ArrayList<ParkingGarageObserver>();
 
 	public ParkingGarage(int maxOccu) throws RemoteException {
 		super();
@@ -135,20 +136,25 @@ public class ParkingGarage extends java.rmi.server.UnicastRemoteObject implement
 
 	@Override
 	public void attach(ParkingGarageObserver obs) {
-		// TODO Auto-generated method stub
-		
+		observersList.add(obs);
 	}
 
 	@Override
 	public void detach(ParkingGarageObserver obs) {
-		// TODO Auto-generated method stub
-		
+		observersList.remove(obs);
 	}
 
 	@Override
 	public void updateObservers(int occupancy) {
-		// TODO Auto-generated method stub
-		
+		for(ParkingGarageObserver obs : observersList)
+		{
+			try {
+				obs.update(occupancy, checkGarageSpace());
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 
 }

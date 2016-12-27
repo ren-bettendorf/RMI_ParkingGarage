@@ -1,12 +1,18 @@
 package client;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Date;
+
+import javax.swing.JOptionPane;
 
 import common.Ticket;
 import server.IParkingGarage;
@@ -37,6 +43,8 @@ public class ParkingGarageController {
 
 		}
 	}
+	
+	
 
 	public boolean addCarToGarage() {
 		try {
@@ -242,5 +250,189 @@ public class ParkingGarageController {
 
 	public void setLastTicket(Ticket ticket) {
 		lastTicket = ticket;
+	}
+
+
+
+	static void createReportsButton() {
+		ParkingGarageClient.reportsButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+				LocalDateTime beginDate = null;
+				LocalDateTime endDate = null;
+				try {
+					Date date = df.parse(JOptionPane.showInputDialog("Please expiration date (MM/dd/yyyy): "));
+					beginDate = LocalDateTime.of(date.getYear() + 1900, date.getMonth() + 1, date.getDate(), 0, 0);
+				} catch (Exception exc) {
+					JOptionPane.showMessageDialog(null, "Trouble : " + exc.toString());
+					return;
+				}
+	
+				try {
+					Date date = df.parse(JOptionPane.showInputDialog("Please expiration date (MM/dd/yyyy): "));
+					endDate = LocalDateTime.of(date.getYear() + 1900, date.getMonth() + 1, date.getDate(), 0, 0);
+				} catch (Exception exc) {
+					JOptionPane.showMessageDialog(null, "Trouble : " + exc.toString());
+					return;
+				}
+	
+				JOptionPane.showMessageDialog(null, ParkingGarageClient.controller.runReports(beginDate, endDate));
+			}
+		});
+	}
+
+
+
+	static void createAdminPaymentButton() {
+	
+		ParkingGarageClient.adminPaymentButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent ae) {
+				String userAddress = JOptionPane.showInputDialog("Please enter the address");
+				String userName = JOptionPane.showInputDialog("Please enter the name");
+				String userPhoneNumber = JOptionPane.showInputDialog("Please enter the phone number");
+	
+				ParkingGarageClient.controller.payForTicket(userName, userAddress, userPhoneNumber);
+	
+			}
+		});
+	}
+
+
+
+	static void createCreditPayment(Ticket ticket) {
+	
+		// Make sure ticket hasn't been paid for yet
+		if (ticket != null) {
+			double amountDue = ParkingGarageClient.controller.getAmountDueOnTicket(ticket);
+			double amountPaid = -1.00;
+			String ccNumber = "";
+			try {
+				amountPaid = Double
+						.parseDouble(JOptionPane.showInputDialog("Amount Due: " + amountDue + "\nPlease enter cash: "));
+				if (amountPaid <= 0) {
+					throw new IllegalArgumentException("Sorry but payment can't be less than or equal to 0");				
+				}
+				ccNumber = JOptionPane.showInputDialog("Please enter credit card number: ");
+			} catch (NumberFormatException nfe) {
+				JOptionPane.showMessageDialog(null, "Sorry something went wrong with your payment please try again.");
+				return;
+			}
+	
+			SimpleDateFormat df = new SimpleDateFormat("MM/yyyy");
+			LocalDateTime expDate = null;
+	
+			try {
+				Date date = df.parse(JOptionPane.showInputDialog("Please expiration date (MM/yyyy): "));
+				expDate = LocalDateTime.of(date.getYear() + 1900, date.getMonth() + 1, 1, 0, 0);
+			} catch (Exception exc) {
+				JOptionPane.showMessageDialog(null, "Trouble : " + exc.toString());
+				return;
+			}
+			try {
+				ParkingGarageClient.controller.payForTicket(ticket, ccNumber, expDate, amountPaid);
+				if (amountPaid > amountDue) {
+					JOptionPane.showMessageDialog(null, "Refunded: " + (amountPaid - amountDue));
+				}
+			} catch (IllegalArgumentException iae) {
+				JOptionPane.showMessageDialog(null, "Something went wrong with the payment. Try again.");
+			}
+		} else {
+			JOptionPane.showMessageDialog(null, "Sorry something went wrong");
+		}
+	}
+
+
+
+	static void createCashPayment(Ticket ticket) {
+	
+		// Make sure ticket hasn't been paid for yet
+		if (ticket != null) {
+			double amountDue = ParkingGarageClient.controller.getAmountDueOnTicket(ticket);
+			double amountPaid = -1.00;
+			try {
+				amountPaid = Double
+						.parseDouble(JOptionPane.showInputDialog("Amount Due: " + amountDue + "\nPlease enter cash: "));
+				if (amountPaid <= 0) {
+					throw new IllegalArgumentException( "Sorry but payment can't be less than or equal to 0");
+				}
+			} catch (NumberFormatException nfe) {
+				JOptionPane.showMessageDialog(null, "Sorry something went wrong with your payment please try again.");
+				return;
+			}
+			try {
+				ParkingGarageClient.controller.payForTicket(ticket, amountPaid);
+				if (amountPaid > amountDue) {
+					JOptionPane.showMessageDialog(null, "Refunded: " + (amountPaid - amountDue));
+				}
+			} catch (IllegalArgumentException iae) {
+				JOptionPane.showMessageDialog(null, "Something went wrong with the payment. Try again.");
+			}
+		} else {
+			JOptionPane.showMessageDialog(null, "Sorry something went wrong");
+			return;
+		}
+	
+	}
+
+
+
+	static void createExitButton() {
+		ParkingGarageClient.exitButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent ae) {
+	
+				String ticketID = JOptionPane.showInputDialog("Please enter your ticket number: ");
+				Ticket ticket = ParkingGarageClient.controller.findTicket(ticketID);
+				if (ticket != null) {
+					Object[] options = { "Cash", "Credit" };
+					int paymentResponse = JOptionPane.showOptionDialog(null, "Please select a payment option", null,
+							JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[1]);
+	
+					if (paymentResponse == 0) {
+						try {
+							ParkingGarageController.createCashPayment(ticket);
+						} catch (Exception e) {
+							JOptionPane.showMessageDialog(null, "Something went wrong with the payment");
+							return;
+						}
+					} else if (paymentResponse == 1) {
+						try {
+							ParkingGarageController.createCreditPayment(ticket);
+						} catch (Exception e) {
+							JOptionPane.showMessageDialog(null, "Something went wrong with the payment");
+							return;
+						}
+					}
+	
+					JOptionPane.showMessageDialog(null, "Payment Accepted. Opening Exit Gate");
+					JOptionPane.showMessageDialog(null, "Car exits garage");
+					JOptionPane.showMessageDialog(null, "Exit gate closes. Ready for next exit");
+	
+				} else {
+					JOptionPane.showMessageDialog(null, "Sorry something went wrong");
+				}
+			}
+		});
+	}
+
+
+
+	static void createEntryButton() {
+	
+		ParkingGarageClient.entryButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent ae) {
+	
+				if (ParkingGarageClient.controller.addCarToGarage()) {
+					JOptionPane.showMessageDialog(null, "Gate has space and ticket is dispensed");
+					JOptionPane.showMessageDialog(null, "Ticket Number: " + ParkingGarageClient.controller.getLastTicket().toString());
+					// Just to make copying the ticket number easier for mine
+					// and your sanity
+					System.out.println(ParkingGarageClient.controller.getLastTicket().toString());
+					JOptionPane.showMessageDialog(null, "Please enter garage. Gate opens.");
+					JOptionPane.showMessageDialog(null, "Gate closes once car enters.");
+				} else {
+					JOptionPane.showMessageDialog(null, "Sorry but garage is full");
+				}
+			}
+		});
 	}
 }
