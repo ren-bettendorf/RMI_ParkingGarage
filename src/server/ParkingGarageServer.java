@@ -6,10 +6,7 @@ import java.rmi.RemoteException;
 
 public class ParkingGarageServer {
 	
-	private String url;
-
 	public ParkingGarageServer(String url, int occupationSize) throws RemoteException {
-		this.url = url;
 		try {
 			IParkingGarage garage = new ParkingGarage(occupationSize);
 			Naming.rebind(url, garage);

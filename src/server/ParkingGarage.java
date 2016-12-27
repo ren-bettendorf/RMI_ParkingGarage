@@ -25,9 +25,19 @@ public class ParkingGarage extends java.rmi.server.UnicastRemoteObject implement
 		recordManager = new RecordManager();
 		this.maxOccupancy = maxOccu;
 	}
+	
+	public int garageOccupancy() {
+		try {
+			return ticketsInGarage.size() - recordManager.getAdminRecordSize();
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return -1;
+	}
 
-	public boolean checkGarageSpace() throws RemoteException {
-		if (ticketsInGarage.size() - recordManager.getAdminRecordSize() == maxOccupancy) {
+	public boolean checkGarageSpace()  {
+		if (garageOccupancy() == maxOccupancy) {
 			return true;
 		}
 		return false;
@@ -41,6 +51,7 @@ public class ParkingGarage extends java.rmi.server.UnicastRemoteObject implement
 
 				ticketsInGarage.add(t);
 				addEntryRecords(t);
+				updateObservers(garageOccupancy());
 			}
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
@@ -51,6 +62,7 @@ public class ParkingGarage extends java.rmi.server.UnicastRemoteObject implement
 
 	public void removeCarFromGarage(Ticket ticket) throws RemoteException {
 		ticketsInGarage.remove(ticket);
+		updateObservers(garageOccupancy());
 	}
 
 	private void addEntryRecords(Ticket ticket) throws RemoteException {
@@ -76,6 +88,7 @@ public class ParkingGarage extends java.rmi.server.UnicastRemoteObject implement
 		IPayment payment = recordManager.createAdminPayment(userAddress, userName, userPhoneNumber, amountOwed,
 				dateOwed);
 		recordManager.addAdminRecord(payment);
+		updateObservers(garageOccupancy());
 	}
 
 	public void addExitRecords(Ticket ticket, LocalDateTime ldt) throws RemoteException {
@@ -148,12 +161,7 @@ public class ParkingGarage extends java.rmi.server.UnicastRemoteObject implement
 	public void updateObservers(int occupancy) {
 		for(ParkingGarageObserver obs : observersList)
 		{
-			try {
-				obs.update(occupancy, checkGarageSpace());
-			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			obs.update(occupancy, checkGarageSpace());
 		}
 	}
 

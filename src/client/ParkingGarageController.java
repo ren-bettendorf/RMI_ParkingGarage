@@ -92,12 +92,7 @@ public class ParkingGarageController {
 
 	public boolean checkGarageSpace() {
 		boolean status = true;
-		try {
-			status = garage.checkGarageSpace();
-		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		status = garage.checkGarageSpace();
 		return status;
 	}
 
@@ -113,15 +108,6 @@ public class ParkingGarageController {
 		return sb.toString();
 	}
 
-	private String runOccuReports(LocalDateTime begin, LocalDateTime end) {
-		String sb = null;
-		try {
-			sb = garage.runOccupationReports(begin, end);
-		} catch (RemoteException re) {
-			re.printStackTrace();
-		}
-		return sb;
-	}
 
 	private String runReports(LocalDateTime begin, LocalDateTime end) {
 		String sb = null;
