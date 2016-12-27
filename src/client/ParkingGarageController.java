@@ -12,19 +12,21 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
 
+import javax.swing.JButton;
 import javax.swing.JOptionPane;
 
 import common.Ticket;
-import server.IParkingGarage;
+import server.ParkingGarage;
 
 public class ParkingGarageController {
 
-	Ticket lastTicket;
-	IParkingGarage garage;
+	private Ticket lastTicket;
+	private ParkingGarage garage;
+	private JButton entryButton, exitButton, adminPaymentButton, reportsButton;
 
 	public ParkingGarageController(String url) {
 		try {
-			this.garage = (IParkingGarage) Naming.lookup(url);
+			this.garage = (ParkingGarage) Naming.lookup(url);
 
 		} catch (RemoteException re) {
 			System.out.println("RemoteException");
@@ -254,8 +256,8 @@ public class ParkingGarageController {
 
 
 
-	static void createReportsButton() {
-		ParkingGarageClient.reportsButton.addActionListener(new ActionListener() {
+	private void createReportsButton() {
+		reportsButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
 				LocalDateTime beginDate = null;
@@ -276,22 +278,21 @@ public class ParkingGarageController {
 					return;
 				}
 	
-				JOptionPane.showMessageDialog(null, ParkingGarageClient.controller.runReports(beginDate, endDate));
+				JOptionPane.showMessageDialog(null, runReports(beginDate, endDate));
 			}
 		});
 	}
 
 
 
-	static void createAdminPaymentButton() {
-	
-		ParkingGarageClient.adminPaymentButton.addActionListener(new ActionListener() {
+	private void createAdminPaymentButton() {
+		adminPaymentButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ae) {
 				String userAddress = JOptionPane.showInputDialog("Please enter the address");
 				String userName = JOptionPane.showInputDialog("Please enter the name");
 				String userPhoneNumber = JOptionPane.showInputDialog("Please enter the phone number");
 	
-				ParkingGarageClient.controller.payForTicket(userName, userAddress, userPhoneNumber);
+				payForTicket(userName, userAddress, userPhoneNumber);
 	
 			}
 		});
@@ -299,11 +300,72 @@ public class ParkingGarageController {
 
 
 
-	static void createCreditPayment(Ticket ticket) {
+
+	private void createExitButton() {
+		exitButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent ae) {
 	
+				String ticketID = JOptionPane.showInputDialog("Please enter your ticket number: ");
+				Ticket ticket = findTicket(ticketID);
+				if (ticket != null) {
+					Object[] options = { "Cash", "Credit" };
+					int paymentResponse = JOptionPane.showOptionDialog(null, "Please select a payment option", null,
+							JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[1]);
+	
+					if (paymentResponse == 0) {
+						try {
+							createCashPayment(ticket);
+						} catch (Exception e) {
+							JOptionPane.showMessageDialog(null, "Something went wrong with the payment");
+							return;
+						}
+					} else if (paymentResponse == 1) {
+						try {
+							createCreditPayment(ticket);
+						} catch (Exception e) {
+							JOptionPane.showMessageDialog(null, "Something went wrong with the payment");
+							return;
+						}
+					}
+	
+					JOptionPane.showMessageDialog(null, "Payment Accepted. Opening Exit Gate");
+					JOptionPane.showMessageDialog(null, "Car exits garage");
+					JOptionPane.showMessageDialog(null, "Exit gate closes. Ready for next exit");
+	
+				} else {
+					JOptionPane.showMessageDialog(null, "Sorry something went wrong");
+				}
+			}
+		});
+	}
+
+
+
+	private void createEntryButton() {
+		entryButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent ae) {
+	
+				if (addCarToGarage()) {
+					JOptionPane.showMessageDialog(null, "Gate has space and ticket is dispensed");
+					JOptionPane.showMessageDialog(null, "Ticket Number: " + getLastTicket().toString());
+					// Just to make copying the ticket number easier for mine
+					// and your sanity
+					System.out.println(getLastTicket().toString());
+					JOptionPane.showMessageDialog(null, "Please enter garage. Gate opens.");
+					JOptionPane.showMessageDialog(null, "Gate closes once car enters.");
+					
+				} else {
+					JOptionPane.showMessageDialog(null, "Sorry but garage is full");
+				}
+			}
+		});
+	}
+	
+	private void createCreditPayment(Ticket ticket) {
+		
 		// Make sure ticket hasn't been paid for yet
 		if (ticket != null) {
-			double amountDue = ParkingGarageClient.controller.getAmountDueOnTicket(ticket);
+			double amountDue = getAmountDueOnTicket(ticket);
 			double amountPaid = -1.00;
 			String ccNumber = "";
 			try {
@@ -329,7 +391,7 @@ public class ParkingGarageController {
 				return;
 			}
 			try {
-				ParkingGarageClient.controller.payForTicket(ticket, ccNumber, expDate, amountPaid);
+				payForTicket(ticket, ccNumber, expDate, amountPaid);
 				if (amountPaid > amountDue) {
 					JOptionPane.showMessageDialog(null, "Refunded: " + (amountPaid - amountDue));
 				}
@@ -343,11 +405,11 @@ public class ParkingGarageController {
 
 
 
-	static void createCashPayment(Ticket ticket) {
+	private void createCashPayment(Ticket ticket) {
 	
 		// Make sure ticket hasn't been paid for yet
 		if (ticket != null) {
-			double amountDue = ParkingGarageClient.controller.getAmountDueOnTicket(ticket);
+			double amountDue = getAmountDueOnTicket(ticket);
 			double amountPaid = -1.00;
 			try {
 				amountPaid = Double
@@ -360,7 +422,7 @@ public class ParkingGarageController {
 				return;
 			}
 			try {
-				ParkingGarageClient.controller.payForTicket(ticket, amountPaid);
+				payForTicket(ticket, amountPaid);
 				if (amountPaid > amountDue) {
 					JOptionPane.showMessageDialog(null, "Refunded: " + (amountPaid - amountDue));
 				}
@@ -376,63 +438,21 @@ public class ParkingGarageController {
 
 
 
-	static void createExitButton() {
-		ParkingGarageClient.exitButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent ae) {
-	
-				String ticketID = JOptionPane.showInputDialog("Please enter your ticket number: ");
-				Ticket ticket = ParkingGarageClient.controller.findTicket(ticketID);
-				if (ticket != null) {
-					Object[] options = { "Cash", "Credit" };
-					int paymentResponse = JOptionPane.showOptionDialog(null, "Please select a payment option", null,
-							JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[1]);
-	
-					if (paymentResponse == 0) {
-						try {
-							ParkingGarageController.createCashPayment(ticket);
-						} catch (Exception e) {
-							JOptionPane.showMessageDialog(null, "Something went wrong with the payment");
-							return;
-						}
-					} else if (paymentResponse == 1) {
-						try {
-							ParkingGarageController.createCreditPayment(ticket);
-						} catch (Exception e) {
-							JOptionPane.showMessageDialog(null, "Something went wrong with the payment");
-							return;
-						}
-					}
-	
-					JOptionPane.showMessageDialog(null, "Payment Accepted. Opening Exit Gate");
-					JOptionPane.showMessageDialog(null, "Car exits garage");
-					JOptionPane.showMessageDialog(null, "Exit gate closes. Ready for next exit");
-	
-				} else {
-					JOptionPane.showMessageDialog(null, "Sorry something went wrong");
-				}
-			}
-		});
+	public void attachObserver(ParkingGarageObserver obs) {
+		garage.attach(obs);		
 	}
 
 
 
-	static void createEntryButton() {
-	
-		ParkingGarageClient.entryButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent ae) {
-	
-				if (ParkingGarageClient.controller.addCarToGarage()) {
-					JOptionPane.showMessageDialog(null, "Gate has space and ticket is dispensed");
-					JOptionPane.showMessageDialog(null, "Ticket Number: " + ParkingGarageClient.controller.getLastTicket().toString());
-					// Just to make copying the ticket number easier for mine
-					// and your sanity
-					System.out.println(ParkingGarageClient.controller.getLastTicket().toString());
-					JOptionPane.showMessageDialog(null, "Please enter garage. Gate opens.");
-					JOptionPane.showMessageDialog(null, "Gate closes once car enters.");
-				} else {
-					JOptionPane.showMessageDialog(null, "Sorry but garage is full");
-				}
-			}
-		});
+	public void attachButtons(JButton entryButton, JButton exitButton, JButton adminPaymentButton,
+			JButton reportsButton) {
+		this.entryButton = entryButton;
+		createEntryButton();
+		this.exitButton = exitButton;
+		createExitButton();
+		this.adminPaymentButton = adminPaymentButton;
+		createAdminPaymentButton();
+		this.reportsButton = reportsButton;
+		createReportsButton();
 	}
 }

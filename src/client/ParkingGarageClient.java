@@ -13,7 +13,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 public class ParkingGarageClient implements ParkingGarageObserver {
-	static ParkingGarageController controller;
+	private static ParkingGarageController controller;
 
 	private static String garageOccupancyPrefix = "Garage Occupancy: ";
 	static JButton entryButton;
@@ -42,10 +42,6 @@ public class ParkingGarageClient implements ParkingGarageObserver {
 		JPanel pane = new JPanel(new GridBagLayout());
 
 		createButtons();
-		ParkingGarageController.createEntryButton();
-		ParkingGarageController.createExitButton();
-		ParkingGarageController.createAdminPaymentButton();
-		ParkingGarageController.createReportsButton();
 
 		createPanel(pane);
 
@@ -93,7 +89,7 @@ public class ParkingGarageClient implements ParkingGarageObserver {
 	 * Create the GUI and show it. For thread safety, this method should be
 	 * invoked from the event-dispatching thread.
 	 */
-	private static void createAndShowGUI() {
+	private void createAndShowGUI() {
 		
 		// Make sure we have nice window decorations.
 		JFrame.setDefaultLookAndFeelDecorated(true);
@@ -104,7 +100,8 @@ public class ParkingGarageClient implements ParkingGarageObserver {
 
 		Component contents = createComponents();
 		frame.getContentPane().add(contents, BorderLayout.CENTER);
-
+		controller.attachButtons(entryButton, exitButton, adminPaymentButton, reportsButton);
+		controller.attachObserver(this);
 		// Display the window.
 		frame.pack();
 		frame.setVisible(true);
@@ -143,9 +140,9 @@ public class ParkingGarageClient implements ParkingGarageObserver {
 														80)); // right
 	}
 
-	public static void main(String[] args) {
+	public void main(String[] args) {
 		controller = new ParkingGarageController("rmi://" + args[0] + ":" + args[1] + "/ParkingGarageServer");
-
+		
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				createAndShowGUI();
